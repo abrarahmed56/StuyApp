@@ -1,0 +1,29 @@
+
+{% extends "base.html" %}
+{% block bodycontent %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <center>{{ message }}</center>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form class="pure-form pure-form-stacked" method="POST">
+<center>
+Username: <input type="text" name="username"></input>
+<br>
+<br>
+Password: <input type="password" name="password"></input>
+<br>
+<br>
+
+<input type="submit" name="sub" value="Login"></submit>
+</center>
+</form>
+</html>
+
+{% endblock bodycontent %}

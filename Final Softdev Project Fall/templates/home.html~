@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block bodycontent %}
+
+<!--
+<head>
+<title> AEZA </title>
+</head>
+-->
+
+<ul class="nav navbar-nav navbar-right">
+      <li><a href="/login">Login</a></li>
+      <li><a href="/register">Register</a></li>
+    </ul>
+  </div>
+</div>
+<body> 
+
+<center> <h1>Welcome to AEZA!</h1>
+<!--
+<div class="container jumbotron" style="border-radius:30px">
+-->
+<!-- A wrapper for all the blog posts -->
+
+<!--
+<br><br>
+<form class="pure-form pure-form-stacked" method = "POST" style="background-color:808089">
+<fieldset>
+<legend>Enter yo info!</legend>
+<label for="title">Username</label>
+<input class="form-control" type="text" name="username" placeholder="Title">
+<label for="author">Password</label>
+<input class="form-control" type="password" name="password" placeholder="Author">
+<input type="submit" name="sub" value="Register"></submit>
+<button type="submit" class="pure-button pure-button-primary" name="sub" valuse="Login">Login!</button>
+</fieldset>
+</form>
+</div></center>
+</body></html>
+-->
+
+{% endblock bodycontent %}

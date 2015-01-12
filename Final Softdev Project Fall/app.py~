@@ -1,0 +1,10 @@
+from flask import Flask
+from pymongo import Connection
+
+app = Flask(__name__)
+conn = connection()
+db = conn ['stuyapp']
+
+@app.route("/")
+def home():
+    return "Enter Schedule:<form><input type='text'><input type='submit' value='enter'></form>"
