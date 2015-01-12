@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect, url_for, render_template, flash, session
 from pymongo import Connection
-from pytesser import *
-from PIL import Image
+#from pytesser import *
+#from PIL import Image
 import os
 import base64
 
@@ -93,6 +93,8 @@ def logout():
     print "logout"
     del session['user']
     return redirect(url_for('home'))
+
+#try: http://www.smartocr.com/sdk.htm
 #####################
 '''
 @app.route("/", methods=["GET", "POST"])
