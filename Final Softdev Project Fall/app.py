@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect, url_for, render_template, flash, session
 from pymongo import Connection
-from pytesser import *
+from pytesseract import *
 from PIL import Image
 import json, urllib2
 import os
@@ -101,12 +101,13 @@ def enter():
         return "hi"
     else:
         ###Screenshotting works if you zoom in to make your schedule fit the entire window
-        img = Image.open("C:/Users/Admin/Desktop/Final Softdev Project Fall/blah/test.jpg")
+        img = Image.open("blah/test.png")
         classes = ["EE", "HE", "HL", "HV", "MQ"]
         sections = [ "02", "04", "01", "06", "01" ]
         teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
         db.classes.insert({'student name': 'Blah'})
         return image_to_string(img)
+        #return "HI"
 
 
 if __name__== "__main__":
