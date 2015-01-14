@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, url_for, render_template, flash, ses
 from pymongo import Connection
 from pytesser import *
 from PIL import Image
+import json, urllib2
 import os
 import base64
 
@@ -93,6 +94,8 @@ def logout():
     print "logout"
     del session['user']
     return redirect(url_for('home'))
+
+#try: http://www.smartocr.com/sdk.htm
 #####################
 '''
 @app.route("/", methods=["GET", "POST"])
@@ -102,7 +105,7 @@ def home():
         image = Image.open("scheduleforfinalproject.png")
         print image_to_string(image)
     return "Enter Schedule:<form method='POST'><input name='pic' type='file' accept='image/*'></input><input type='submit' name='sub' value='enter'></submit></form>"
-
+'''
 @app.route("/enter", methods=["GET", "POST"])
 def enter():
     if request.method=="POST":
@@ -122,15 +125,15 @@ def enter():
             print "blah"
             return "hi"
         """
-        img = Image.open("C:/Users/Admin/Desktop/Final Softdev Project Fall/test.png")
+        img = Image.open("C:/Users/Admin/Desktop/Final Softdev Project Fall/myschedule.bmp")
         print img
-        print image_to_string(img)
         classes = ["EE", "HE", "HL", "HV", "MQ"]
         sections = [ "02", "04", "01", "06", "01" ]
         teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
         db.classes.insert({'student name': 'Blah'})
-        return "hello"
-'''
+        #return "hello"
+        return image_to_string(img)
+
 
 if __name__== "__main__":
     app.debug = True

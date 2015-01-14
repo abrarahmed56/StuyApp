@@ -1,7 +1,8 @@
 from flask import Flask, request, redirect, url_for, render_template, flash, session
 from pymongo import Connection
-#from pytesser import *
-#from PIL import Image
+from pytesser import *
+from PIL import Image
+import json, urllib2
 import os
 import base64
 
@@ -53,7 +54,7 @@ def login():
             classNum += 1
             print "beginning of line: " + " ".join(line.split())
             db.classes.insert({"teachername": line.split()[0], "section": line.split()[1], "teacher": line.split()[2], "studentname": username})
-###DOESN'T WORK YET, BUT ALMOST
+###DOESN'T WORK YET, BUT ALMOST-- this finds other people that share your classes
             otherPeople = db.classes.find({"teachername": line.split()[0], "section": line.split()[1], "teacher": line.split()[2]})
             for friend in otherPeople:
                 friends[classNum]=friend['studentname']
@@ -94,45 +95,19 @@ def logout():
     del session['user']
     return redirect(url_for('home'))
 
-#try: http://www.smartocr.com/sdk.htm
-#####################
-'''
-@app.route("/", methods=["GET", "POST"])
-def home():
-    if request.method=="POST":
-        #image = Image.open(request.form.get("pic"))
-        image = Image.open("scheduleforfinalproject.png")
-        print image_to_string(image)
-    return "Enter Schedule:<form method='POST'><input name='pic' type='file' accept='image/*'></input><input type='submit' name='sub' value='enter'></submit></form>"
-
 @app.route("/enter", methods=["GET", "POST"])
 def enter():
     if request.method=="POST":
         return "hi"
     else:
-        #image = Image.open("scheduleforfinalproject.tif")
-        #return image_file_to_string("scheduleforfinalproject.tif")
-        """        try:
-            #image = Image.open("test.png")
-            #text = image_to_string(image)
-            #return "hello"
-            im = Image.open('C:\Users\Admin\Desktop\Final Softdev Project Fall\test.png')
-            print im
-            print image_to_string(im)
-            return "hello"
-        except:
-            print "blah"
-            return "hi"
-        """
-        img = Image.open("C:/Users/Admin/Desktop/Final Softdev Project Fall/test.png")
-        print img
-        print image_to_string(img)
+        ###Screenshotting works if you zoom in to make your schedule fit the entire window
+        img = Image.open("C:/Users/Admin/Desktop/Final Softdev Project Fall/blah/test.jpg")
         classes = ["EE", "HE", "HL", "HV", "MQ"]
         sections = [ "02", "04", "01", "06", "01" ]
         teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
         db.classes.insert({'student name': 'Blah'})
-        return "hello"
-'''
+        return image_to_string(img)
+
 
 if __name__== "__main__":
     app.debug = True
