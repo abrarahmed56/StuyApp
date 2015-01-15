@@ -102,13 +102,38 @@ def enter():
     else:
         ###Screenshotting works if you zoom in to make your schedule fit the entire window
         img = Image.open("blah/test.png")
+        sampleScheduleForTesting = """EES 02 SCHECHTER HES 04 MCROYMENDELL HLS 01 WEISSMAN HVS 06 TRAINOR MQS 01 BROOKS PES 01 CHOY SQS 01 REEP ZLN 05 GEL LOWE ZQT 01 SPORTS TEAM"""
+        s = ""
+        wordsList = []
+        for x in sampleScheduleForTesting:
+            if x == " ":
+                print s
+                wordsList.append(s)
+                s = ""
+            else:
+                s += x
+        wordsList.append(s)
+        eachLine = []
+        #for word in wordsList:
+        i = 0
+        while i < len( wordsList )
+            word = wordsList[i]
+            try:
+                int(word)
+                tempList = []
+                tempList.append (wordsList[i-1])
+                print word + "is a number"
+            except:
+                print word + "not number"
+
+        """
         classes = ["EE", "HE", "HL", "HV", "MQ"]
         sections = [ "02", "04", "01", "06", "01" ]
         teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
-        db.classes.insert({'student name': 'Blah'})
-        return image_to_string(img)
+        db.classes.insert({'student name': 'Blah'})"""
+        return str(wordsList)
+        #return image_to_string(img)
         #return "HI"
-
 
 if __name__== "__main__":
     app.debug = True
