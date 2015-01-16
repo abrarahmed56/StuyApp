@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect, url_for, render_template, flash, session
 from pymongo import Connection
-from pytesseract import *
+from pytesser import *
 from PIL import Image
 import json, urllib2
 import os
@@ -115,17 +115,56 @@ def enter():
         wordsList.append(s)
         eachLine = []
         #for word in wordsList:
-        i = 0
-        while i < len( wordsList )
+        i = len (wordsList) - 1
+        numIndeces = []
+        while i >= 0:
             word = wordsList[i]
             try:
                 int(word)
-                tempList = []
-                tempList.append (wordsList[i-1])
+                numIndeces.append(i)
                 print word + "is a number"
             except:
                 print word + "not number"
-
+            i = i - 1
+        #for k in range 
+        tempList = []
+        tempList.append(wordsList[numIndeces[0]-1])
+        tempList.append(wordsList[numIndeces[0]])
+        j = numIndeces[0] + 1
+        s = ""
+        while j < len(wordsList):
+            s = s + wordsList[j] + " "
+            j = j + 1
+        tempList.append(s[:-1])
+        print tempList
+        for k in range (numIndeces[0], len(wordsList)):
+            s += wordsList[k] + " "
+        j = 1
+        allClasses = []
+        while j < len(numIndeces):
+            #print wordsList[numIndeces[j]]
+            tempList = []
+            tempList.append(wordsList[numIndeces[j]-1])
+            tempList.append(wordsList[numIndeces[j]])
+            #print tempList
+            s = ""
+            for k in range (numIndeces[j]+1, numIndeces[j-1]-1):
+                s = s + wordsList[k] + " "
+            tempList.append(s[:-1])
+            print tempList
+            allClasses.append(tempList)
+            print wordsList[numIndeces[j-1]-1]
+            #print str(numIndeces[j]) + " " + str(numIndeces[j-1])
+            '''for k in range(numIndeces[j], numIndeces[j-1]-1):
+                print "k: " + wordsList[k]'''
+            #tempList.append(wordsList[numIndeces[k]])
+            #tempList.append(s)
+            j = j + 1
+        db.students.insert({'name':'adduserlater', 'id':1847, 'classes': allClasses})
+        print allClasses
+        for x in db.students.find():
+            print x
+        db.students.remove()
         """
         classes = ["EE", "HE", "HL", "HV", "MQ"]
         sections = [ "02", "04", "01", "06", "01" ]
