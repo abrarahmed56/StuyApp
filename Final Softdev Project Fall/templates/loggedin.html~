@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-<title>AAEZ</title>
+<title>StuyApp</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.2.0/flatly/bootstrap.min.css">
 </head>
 <div class="navbar navbar-default">
@@ -24,5 +24,11 @@
 <center>
 <div class="container jumbotron" style="border-radius:30px">
 <h1>Hello {{username}}!</h1>
-You've logged in {{n}} times!
+Please enter your schedule:
+<form method="POST">
+  <input name="pic" type="file" accept="image/*"></input>
+  <textarea type="text" rows="10" cols="100" name="txtsched"></textarea>
+  <input name="h" type="hidden" value="bleh"></input>
+  <input type="submit" name="sub"></submit>
+</form>
 </html>
