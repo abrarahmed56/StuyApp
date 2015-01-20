@@ -33,6 +33,7 @@ def allowed_file(filename):
 
 @app.route("/login",methods=["GET","POST"])
 def login():
+    #LOG IN
     if request.method=="POST" and request.form.get("h")!="bleh":
         button = request.form.get("sub",None)
         excl=request.form.get("ex",None)
@@ -44,37 +45,64 @@ def login():
         if (excl != None): 
             #return exclusive(username2)
             return redirect(url_for('exclusive', user=username2))
+        #CHECK IF USERNAME/PASSWORD VALID
         if db.users.find_one ( { 'name' : username , 'pword' : passw } ) != None:
-            #flash("correct login info")
             n = db.users.update ( { 'name': username } , { '$inc': { 'n' : 1 } } )
 	    #for q in db.users.find({'name':username}):
  	        #print int(str(q)[str(q).find("u'n': ")+6: str(q).rfind("}")])
 	    q = db.users.find({'name':username})[0]
-	    n = int(str(q)[str(q).find("u'n': ")+6: str(q).rfind("}")])
+	    #n = int(str(q)[str(q).find("u'n': ")+6: str(q).rfind("}")])
+            n = q['n']
+            #n = 0
             #n = n + 1
             #session['n']=n
 	    for x in db.users.find({'name': username,'pword':passw}):
 	        print "bleh" + str(db.users.find({'name':username,'pword':passw}))
             session['user']=username
-            return render_template("loggedin.html", username=username, n=n,url1="/exclusive",link1="Exclusively for Users",url2="/logout",link2="Logout")
-        else: 
+            #CHECK IF SCHEDULE IS UPLOADED
+            if db.users.find_one({'name': username, 'schedule': 1}) != None:
+                img = Image.open("tmp/"+username+".bmp")
+                schedule = image_to_string(img)
+                #CHECK IF SCHEDULE IS CONFIRMED
+                if db.users.find_one({'name': username, 'confirmed': 1}) != None:
+                    #return redirect(url_for("/analyzeSchedule", username=username, schedule=schedule))
+                    return render_template("loggedinwithschedule.html", username=username, n=n, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
+                #SCHEDULE NOT CONFIRMED YET
+                else:
+                    #print db.users.find()
+                    #return redirect(url_for("/confirm/", username=username, schedule=schedule))
+                    return render_template("confirmschedule.html", username=username, n=n, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
+            #SCHEDULE NOT UPLOADED
+            else:
+                db.users.update({'name':username}, {'$set':{'schedule':1}})
+                return render_template("loggedin.html", username=username, n=n,url1="/exclusive",link1="Exclusively for Users",url2="/logout",link2="Logout")
+        #INCORRECT LOGIN INFO
+        else:
             flash("incorrect login info")
             return redirect(url_for('login'))
 
 
-
+    #PICTURE/TEXT UPLOADED BY USER
     elif request.method=="POST" and request.form.get("h")=="bleh":
         ###Screenshotting works if you zoom in to make your schedule fit the entire window
-        #if request.form.get("pic")!= None:
         file = request.files['pic']
         username = session['user']
+        #CHECK IF IMAGE UPLOADED
         if file:# and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            os.rename("tmp/"+file.filename, "tmp/"+username+file.filename[-4:])
-            return "File Uploaded!"
+            newFileName = username + ".bmp"
+            os.rename("tmp/"+file.filename, "tmp/" + newFileName)
+            img = Image.open("tmp/" + newFileName)
+            for x in db.users.find():
+                print "mongo: " + str(x)
+            db.users.update({'name':username}, {'$set':{'schedule':1}})
+            schedule = image_to_string(img)
+            return render_template("confirmschedule.html", username=username, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
+        #CHECK IF TEXT PASTED
         elif request.form.get("txtsched")!="":
             return "text"
+        #IF NOTHING INPUT, SAMPLE SCHEDULE IS READY
         sampleScheduleForTesting = """EES 02 SCHECHTER HES 04 MCROYMENDELL HLS 01 WEISSMAN HVS 06 TRAINOR MQS 01 BROOKS PES 01 CHOY SQS 01 REEP ZLN 05 GEL LOWE ZQT 01 SPORTS TEAM"""
         s = ""
         wordsList = []
@@ -137,7 +165,6 @@ def login():
         print allClasses
         for x in db.students.find():
             print x
-        db.students.remove()
         """
         classes = ["EE", "HE", "HL", "HV", "MQ"]
         sections = [ "02", "04", "01", "06", "01" ]
@@ -178,6 +205,7 @@ def register():
         username = request.form.get("username", None)
         passw = request.form.get("password", None)
         error = None
+        db.users.remove()
         if db.users.find_one ( { 'name' : username } ) == None:
             if username == "":
                 flash("Please enter a username")
@@ -185,7 +213,7 @@ def register():
             if passw == "":
                 flash("Please enter a password")
                 return redirect(url_for('register'))
-            db.users.insert ( { 'name': username, 'pword': passw, 'n': 0 } )
+            db.users.insert ( { 'name': username, 'pword': passw, 'n': 0 , 'schedule': 0, 'confirmed': 0} )
             #return "<h1>Thanks for joining!</h1>" + str ( { 'name':username, 'pword': passw } )
             flash("Thanks for joining! Please log in now.")
             return redirect(url_for('login'))
@@ -194,6 +222,18 @@ def register():
             #return "<h1>Please select an available username</h1>"
             return redirect(url_for('register'))
     return render_template("register.html",url2="/login",link2="Login",url0="/",link0="Home",url1="/about",link1="About")
+
+@app.route("/confirm/<username>/<schedule>", methods=["GET", "POST"])
+def confirm(username, schedule):
+    if session['user'] == username:
+        db.users.update({'name':username}, {'$set':{'confirmed':1}})
+        return redirect(url_for('analyzeSchedule',username=username, schedule=schedule))
+    else:
+        return "dont enter this url"
+
+@app.route("/analyzeSchedule/<username>/<schedule>", methods=["GET", "POST"])
+def analyzeSchedule(username, schedule):
+    return render_template("loggedinwithschedule.html", username=username, n=0, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
 
 @app.route("/logout")
 def logout():

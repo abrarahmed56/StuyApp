@@ -1,19 +1,35 @@
 from flask import Flask, request, redirect, url_for, render_template, flash, session
+from werkzeug import secure_filename
 from pymongo import Connection
 from pytesser import *
 from PIL import Image
 import json, urllib2
 import os
 import base64
+import cgi
+import cgitb; cgitb.enable()
+
+UPLOAD_FOLDER = './tmp/'
+ALLOWED_EXTENSIONS = set(['png', 'bmp', 'jpg'])
+
+form = cgi.FieldStorage()
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = "secret"
 conn = Connection()
 db = conn ['stuyapp']
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 @app.route("/")
 def home(): 
     return render_template("home.html",url1="/login",link1="Login",url2="/register",link2="Register",url0="/about",link0="About")
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route("/login",methods=["GET","POST"])
 def login():
@@ -44,8 +60,95 @@ def login():
         else: 
             flash("incorrect login info")
             return redirect(url_for('login'))
+
+
+
     elif request.method=="POST" and request.form.get("h")=="bleh":
-        schedule = request.form.get("txtsched")
+        ###Screenshotting works if you zoom in to make your schedule fit the entire window
+        #if request.form.get("pic")!= None:
+        file = request.files['pic']
+        username = session['user']
+        if file:# and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            os.rename("tmp/"+file.filename, "tmp/"+username+file.filename[-4:])
+            return "File Uploaded!"
+        elif request.form.get("txtsched")!="":
+            return "text"
+        sampleScheduleForTesting = """EES 02 SCHECHTER HES 04 MCROYMENDELL HLS 01 WEISSMAN HVS 06 TRAINOR MQS 01 BROOKS PES 01 CHOY SQS 01 REEP ZLN 05 GEL LOWE ZQT 01 SPORTS TEAM"""
+        s = ""
+        wordsList = []
+        for x in sampleScheduleForTesting:
+            if x == " ":
+                print s
+                wordsList.append(s)
+                s = ""
+            else:
+                s += x
+        wordsList.append(s)
+        eachLine = []
+        #for word in wordsList:
+        i = len (wordsList) - 1
+        numIndeces = []
+        while i >= 0:
+            word = wordsList[i]
+            try:
+                int(word)
+                numIndeces.append(i)
+                print word + "is a number"
+            except:
+                print word + "not number"
+            i = i - 1
+        #for k in range 
+        tempList = []
+        tempList.append(wordsList[numIndeces[0]-1])
+        tempList.append(wordsList[numIndeces[0]])
+        j = numIndeces[0] + 1
+        s = ""
+        while j < len(wordsList):
+            s = s + wordsList[j] + " "
+            j = j + 1
+        tempList.append(s[:-1])
+        print tempList
+        for k in range (numIndeces[0], len(wordsList)):
+            s += wordsList[k] + " "
+        j = 1
+        allClasses = []
+        while j < len(numIndeces):
+            #print wordsList[numIndeces[j]]
+            tempList = []
+            tempList.append(wordsList[numIndeces[j]-1])
+            tempList.append(wordsList[numIndeces[j]])
+            #print tempList
+            s = ""
+            for k in range (numIndeces[j]+1, numIndeces[j-1]-1):
+                s = s + wordsList[k] + " "
+            tempList.append(s[:-1])
+            print tempList
+            allClasses.append(tempList)
+            print wordsList[numIndeces[j-1]-1]
+            #print str(numIndeces[j]) + " " + str(numIndeces[j-1])
+            '''for k in range(numIndeces[j], numIndeces[j-1]-1):
+                print "k: " + wordsList[k]'''
+            #tempList.append(wordsList[numIndeces[k]])
+            #tempList.append(s)
+            j = j + 1
+        db.students.insert({'name':'adduserlater', 'id':1847, 'classes': allClasses})
+        print allClasses
+        for x in db.students.find():
+            print x
+        db.students.remove()
+        """
+        classes = ["EE", "HE", "HL", "HV", "MQ"]
+        sections = [ "02", "04", "01", "06", "01" ]
+        teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
+        db.classes.insert({'student name': 'Blah'})"""
+        return str(wordsList)
+        #return image_to_string(img)
+        #return "HI"
+
+
+        '''       schedule = request.form.get("txtsched")
         print schedule
         username = request.form.get("username", None)
         friends={}
@@ -62,7 +165,10 @@ def login():
             print x
         print "FRIENDS LIST: " + str(friends)
         #db.classes.remove()
-        return render_template("schedule.html",url2="/",link2="Home",url1="/register",link1="Register")
+        return render_template("schedule.html",url2="/",link2="Home",url1="/register",link1="Register")'''
+
+
+
     return render_template("login.html",url2="/",link2="Home",url1="/register",link1="Register")
 
 @app.route("/register",methods=["GET","POST"])
