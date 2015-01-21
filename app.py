@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect, url_for, render_template, flash, session
 from werkzeug import secure_filename
 from pymongo import Connection
-from pytesser import *
+from pytesseract import *
 from PIL import Image
 import json, urllib2
 import os
