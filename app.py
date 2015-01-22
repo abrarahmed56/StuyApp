@@ -100,8 +100,21 @@ def login():
             schedule = image_to_string(img)
             return render_template("confirmschedule.html", username=username, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
         #CHECK IF TEXT PASTED
-        elif request.form.get("txtsched")!="":
-            return "text"
+        elif request.form.get("txtsched") != "":
+            sch_list = []
+            for i in request.form.get("txtsched").split("\n"):
+                if (i != ""):
+                    print i
+                    sch_list.append(i.split()[0])
+
+            sch_list.remove('ZLN5')
+            sch_dict = {x : '' for x in range(10)}
+            sch_dict[6] = 'ZLN5'
+
+            db.users.update({'name':username}, {
+            
+            return render_template("schedule.html", L = list(set(sch_list)), S = sch_dict)
+                    
         #IF NOTHING INPUT, SAMPLE SCHEDULE IS READY
         sampleScheduleForTesting = """EES 02 SCHECHTER HES 04 MCROYMENDELL HLS 01 WEISSMAN HVS 06 TRAINOR MQS 01 BROOKS PES 01 CHOY SQS 01 REEP ZLN 05 GEL LOWE ZQT 01 SPORTS TEAM"""
         s = ""

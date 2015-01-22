@@ -19,8 +19,24 @@
   </div>
 </div>
 <br>
-<center>
 <div class="container jumbotron" style="border-radius:30px">
-People in your classes:
-
+  Your Schedule: <br>
+  <div class="row">
+    <div class="col-md-1">Period</div>
+    <div class="col-md-1">Class</div>
+  </div>
+  {% for i in range(10) %}
+  <div class="row">
+    <div class="col-md-1">{{i+1}}</div>
+    <div class="col-md-1">{{S[i]}}</div>
+  </div>
+  {% endfor %}
+  <br><br>
+  Classes with undetermined periods: <br>
+  <ul>
+    {% for i in L %}
+    <li> {{i}} </li>
+    {% endfor %}
+  </ul>
+</div>
 </html>
