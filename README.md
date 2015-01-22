@@ -3,3 +3,5 @@ Did you ever want to use an app to see who's in your classes, instead of putting
 
 
 -we may make it so that you can just link your facebook to the app, if you've already posted your schedule online
+
+*Note: password is stuy4pp
