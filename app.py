@@ -27,6 +27,19 @@ def allowed_file(filename):
 def home(): 
     return render_template("home.html",url1="/login",link1="Login",url2="/register",link2="Register",url0="/about",link0="About")
 
+@app.route("/schedule")
+def schedule():
+    username = session['user']
+    print username
+    x = db.users.find_one({'name':username})
+    print db.users
+    if (x == None):
+        return redirect(url_for('/'))
+    print x
+    print x['sch_list']
+    print x['sch_dict']
+    return render_template("schedule.html", L = list(set(x['sch_list'])), S = x['sch_dict'])
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -108,13 +121,13 @@ def login():
                     sch_list.append(i.split()[0])
 
             sch_list.remove('ZLN5')
-            sch_dict = {x : '' for x in range(10)}
-            sch_dict[6] = 'ZLN5'
+            sch_dict = {str(x) : '' for x in range(10)}
+            sch_dict['6'] = 'ZLN5'
 
-            db.users.update({'name':username}, {
+            db.users.update({'name':username}, {'sch_list':sch_list, 'sch_dict':sch_dict})
             
-            return render_template("schedule.html", L = list(set(sch_list)), S = sch_dict)
-                    
+            return redirect(url_for('schedule'))
+            
         #IF NOTHING INPUT, SAMPLE SCHEDULE IS READY
         sampleScheduleForTesting = """EES 02 SCHECHTER HES 04 MCROYMENDELL HLS 01 WEISSMAN HVS 06 TRAINOR MQS 01 BROOKS PES 01 CHOY SQS 01 REEP ZLN 05 GEL LOWE ZQT 01 SPORTS TEAM"""
         s = ""
@@ -218,7 +231,7 @@ def register():
         username = request.form.get("username", None)
         passw = request.form.get("password", None)
         error = None
-        db.users.remove()
+        #db.users.remove()
         if db.users.find_one ( { 'name' : username } ) == None:
             if username == "":
                 flash("Please enter a username")
