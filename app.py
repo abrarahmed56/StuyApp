@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect, url_for, render_template, flash, session
 from werkzeug import secure_filename
 from pymongo import Connection
-from pytesseract import *
+from pytesser import *
 from PIL import Image
 import json, urllib2
 import os
@@ -39,10 +39,10 @@ def schedule():
         flash("Please add your schedule")
         #return redirect(url_for(''))
         return "please add your schedule"
-    return render_template("schedule.html", L = list(set(x['sch_list'])), D = x['sch_dict'], url1='/logout', link1='Logout')
+    return render_template("schedule.html", L = list(set(x['sch_list'])), D = x['sch_dict'], T = x['teachers'], url1='/logout', link1='Logout')
 
 @app.route("/<code>")
-def class(code):
+def clas(code):
     return render_template("class.html")
 def allowed_file(filename):
     return '.' in filename and \
@@ -104,8 +104,9 @@ def loggedin():
             img = Image.open("tmp/" + newFileName)
             for x in db.users.find():
                 print "mongo: " + str(x)
-            db.users.update({'name':username}, {'$set':{'schedule':1}})
             schedule = image_to_string(img)
+            os.remove("tmp/"+newFileName)
+            db.users.update({'name':username}, {'$set':{'schedule':schedule}})
             #return schedule
             #return render_template("confirmschedule.html", username=username, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
         #CHECK IF TEXT PASTED
@@ -124,9 +125,10 @@ def loggedin():
         #sch_list.remove('ZLN5')
         sch_dict = {str(x+1) : '' for x in range(10)}
         sch_dict['6'] = 'ZLN5'
+        teachers = {'5': 'Zamansky', '9': 'McRoy'}
 
-        db.users.update({'name':username}, {'$set':{'sch_list':sch_list, 'sch_dict':sch_dict}})
-        print str(sch_dict)
+        db.users.update({'name':username}, {'$set':{'sch_list':sch_list, 'sch_dict':sch_dict, 'teachers': teachers}})
+        print "sch_dict: " + str(sch_dict)
         return redirect(url_for('schedule'))
 
         '''       schedule = request.form.get("txtsched")
@@ -150,9 +152,11 @@ def loggedin():
     #LOGGING IN FOR THE FIRST TIME/LOGGING IN WITHOUT HAVING PREVIOUSLY UPLOADED A SCHEDULE
     else:
         #CHECK IF SCHEDULE IS UPLOADED
-        if db.users.find_one({'name': username, 'schedule': 1}) != None:
+        if db.users.find_one({'name': username, 'schedule': 0}) == None:
             #img = Image.open("tmp/"+username+".bmp")
             #schedule = image_to_string(img)
+            q = db.users.find_one({'name': username})
+            schedule = q['schedule']
             #CHECK IF SCHEDULE IS CONFIRMED
             if db.users.find_one({'name': username, 'confirmed': 1}) != None:
                 #return redirect(url_for("/analyzeSchedule", username=username, schedule=schedule))
