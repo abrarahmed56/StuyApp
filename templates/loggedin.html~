@@ -25,7 +25,7 @@
 <div class="container jumbotron" style="border-radius:30px">
 <h1>Hello {{username}}!</h1>
 Please enter your schedule:
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
   <input name="pic" type="file" accept="image/*"></input>
   <textarea type="text" rows="10" cols="100" name="txtsched"></textarea>
   <input name="h" type="hidden" value="bleh"></input>
