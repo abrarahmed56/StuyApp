@@ -29,7 +29,7 @@
   {% for i in range(10) %}
   <div class="row">
     <div class="col-md-1">{{i+1}}</div>
-    <div class="col-md-1">{{D[i]}}</div>
+    <div class="col-md-1">{{D[i+1]}}</div>
     <div class="col-md-1"><a href="http://www.ratemyteachers.com/stuyvesant-high-school/13765-s?q={{T[i|string]}}">{{T[i|string]}}</a></div>
   </div>
   {% endfor %}

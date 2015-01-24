@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect, url_for, render_template, flash, session
 from werkzeug import secure_filename
 from pymongo import Connection
-from pytesser import *
+from pytesseract import *
 from PIL import Image
 import json, urllib2
 import os
@@ -20,6 +20,12 @@ app.secret_key = "secret"
 conn = Connection()
 db = conn ['stuyapp']
 
+def join(L): #Joins a list of strings by spaces
+    s = ""
+    for i in L:
+        s = s + i + " "
+    return s[:-1]
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
@@ -30,20 +36,27 @@ def home():
 @app.route("/schedule")
 def schedule():
     username = session['user']
-    print "app.route(schedule) username: " + username
     x = db.users.find_one({'name':username})
-    for y in db.users.find():
-        print y
-    print "find_one('name':username): " + str(x)
-    if (x == None):
+
+    for i in db.classes.find():
+        print i
+
+    if (x == None or 'sch_list' not in x.keys()):
         flash("Please add your schedule")
-        #return redirect(url_for(''))
-        return "please add your schedule"
-    return render_template("schedule.html", L = list(set(x['sch_list'])), D = x['sch_dict'], T = x['teachers'], url1='/logout', link1='Logout')
+        return redirect("/")
+
+    periods = {}
+    for i in x['sch_list']:
+        c = db.classes.find_one({'code': i[:-2], 'ext': i[-2:]})
+        if 'period' in c:
+            periods[c['period']] = i        
+
+    return render_template("schedule.html", L = list(set(x['sch_list'])), D = periods)
 
 @app.route("/<code>")
-def clas(code):
+def classpage(code):
     return render_template("class.html")
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -111,23 +124,94 @@ def loggedin():
             #return render_template("confirmschedule.html", username=username, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
         #CHECK IF TEXT PASTED
         elif request.form.get("txtsched") != "":
-            schedule = request.form.get("txtsched")
-        #IF NOTHING INPUT, FLASH MESSAGE            
-        else:
-            flash("please enter a schedule")
-            return redirect(url_for("loggedin"))
-        sch_list = []
-        for i in request.form.get("txtsched").split("\n"):
-            if (i != ""):
-                print i
-                sch_list.append(i.split()[0])
+            sch_list = []
+            for i in request.form.get("txtsched").split("\n"):
+                if (i != ""):
+                    sch_list.append(i.split()[0]+i.split()[1])
+                    db.classes.update(
+                        {'code':i.split()[0], 'ext':i.split()[1], 'teacher':join(i.split()[2:])},
+                        {'$addToSet': {'students':username}}, 
+                        True)
 
-        #sch_list.remove('ZLN5')
-        sch_dict = {str(x+1) : '' for x in range(10)}
-        sch_dict['6'] = 'ZLN5'
-        teachers = {'5': 'Zamansky', '9': 'McRoy'}
+            db.users.update({'name':username}, {'$set': {
+                'schedule':request.form.get("txtsched").split("\n"),
+                'sch_list':sch_list}})
 
-        db.users.update({'name':username}, {'$set':{'sch_list':sch_list, 'sch_dict':sch_dict, 'teachers': teachers}})
+            return redirect(url_for('schedule'))
+            
+        #IF NOTHING INPUT, SAMPLE SCHEDULE IS READY
+        sampleScheduleForTesting = """EES 02 SCHECHTER HES 04 MCROYMENDELL HLS 01 WEISSMAN HVS 06 TRAINOR MQS 01 BROOKS PES 01 CHOY SQS 01 REEP ZLN 05 GEL LOWE ZQT 01 SPORTS TEAM"""
+        s = ""
+        wordsList = []
+        for x in sampleScheduleForTesting:
+            if x == " ":
+                print s
+                wordsList.append(s)
+                s = ""
+            else:
+                s += x
+        wordsList.append(s)
+        eachLine = []
+        #for word in wordsList:
+        i = len (wordsList) - 1
+        numIndeces = []
+        while i >= 0:
+            word = wordsList[i]
+            try:
+                int(word)
+                numIndeces.append(i)
+                print word + "is a number"
+            except:
+                print word + "not number"
+            i = i - 1
+        #for k in range 
+        tempList = []
+        tempList.append(wordsList[numIndeces[0]-1])
+        tempList.append(wordsList[numIndeces[0]])
+        j = numIndeces[0] + 1
+        s = ""
+        while j < len(wordsList):
+            s = s + wordsList[j] + " "
+            j = j + 1
+        tempList.append(s[:-1])
+        print tempList
+        for k in range (numIndeces[0], len(wordsList)):
+            s += wordsList[k] + " "
+        j = 1
+        allClasses = []
+        while j < len(numIndeces):
+            #print wordsList[numIndeces[j]]
+            tempList = []
+            tempList.append(wordsList[numIndeces[j]-1])
+            tempList.append(wordsList[numIndeces[j]])
+            #print tempList
+            s = ""
+            for k in range (numIndeces[j]+1, numIndeces[j-1]-1):
+                s = s + wordsList[k] + " "
+            tempList.append(s[:-1])
+            print tempList
+            allClasses.append(tempList)
+            print wordsList[numIndeces[j-1]-1]
+            #print str(numIndeces[j]) + " " + str(numIndeces[j-1])
+            '''for k in range(numIndeces[j], numIndeces[j-1]-1):
+                print "k: " + wordsList[k]'''
+            #tempList.append(wordsList[numIndeces[k]])
+            #tempList.append(s)
+            j = j + 1
+        db.students.insert({'name':'adduserlater', 'id':1847, 'classes': allClasses})
+        print allClasses
+        for x in db.students.find():
+            print x
+        """
+        classes = ["EE", "HE", "HL", "HV", "MQ"]
+        sections = [ "02", "04", "01", "06", "01" ]
+        teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
+        db.classes.insert({'student name': 'Blah'})"""
+        return str(wordsList)
+        #return image_to_string(img)
+        #return "HI"
+
+        db.users.update({'name':username}, {'$set':{'sch_list':sch_list}})
         print "sch_dict: " + str(sch_dict)
         return redirect(url_for('schedule'))
 
@@ -296,12 +380,8 @@ def enter():
 
 if __name__== "__main__":
     #db.users.remove()
+    #db.classes.remove()
+    db.users.insert({'name':'b','pword':'b'})
+    db.classes.insert({'code':'ZLN5','ext':'03','teacher':'MESSE TARVIN','period':6})
     app.debug = True
     app.run(port=5555)
-
-
-'''            db.users.update({'name':username}, {'$set': {
-                'schedule':request.form.get("txtsched").split("\n"),
-                'sch_list':sch_list,
-                'sch_dict':sch_dict
-            }})''' #For Later
