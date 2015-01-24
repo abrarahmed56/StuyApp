@@ -1,16 +1,6 @@
-<!DOCTYPE html>
-<head>
-<title>StuyApp</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.2.0/flatly/bootstrap.min.css">
-</head>
-<div class="navbar navbar-default">
-  <div class="navbar-header">
-    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
-  </div>
+{% extends "base.html" %}
+{% block bodycontent %}
+
   <ul class="nav navbar-nav navbar-right">
       <li><form method="POST">
 	  <input type="hidden" name="user" value={{username}}>
@@ -18,8 +8,6 @@
 	  <input type="submit" name="ex" value="Exclusively for Users"  style="background:none;border:0;color:#FFFFFF"></form></li>
       <li><a href={{url2}}>{{link2}}</a></li>
     </ul>
-  </div>
-</div>
 <br>
 <center>
 <div class="container jumbotron" style="border-radius:30px">
@@ -32,3 +20,4 @@ Please enter your schedule:
   <input type="submit" name="sub"></submit>
 </form>
 </html>
+{% endblock bodycontent %}
