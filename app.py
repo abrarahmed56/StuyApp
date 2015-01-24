@@ -20,6 +20,12 @@ app.secret_key = "secret"
 conn = Connection()
 db = conn ['stuyapp']
 
+def join(L): #Joins a list of strings by spaces
+    s = ""
+    for i in L:
+        s = s + i + " "
+    return s[:-1]
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
@@ -30,19 +36,27 @@ def home():
 @app.route("/schedule")
 def schedule():
     username = session['user']
-    print username
     x = db.users.find_one({'name':username})
-    for y in db.users.find():
-        print y
-    print x
-    if (x == None):
+
+    for i in db.classes.find():
+        print i
+
+    if (x == None or 'sch_list' not in x.keys()):
         flash("Please add your schedule")
-        return redirect(url_for(''))
-    return render_template("schedule.html", L = list(set(x['sch_list'])), D = x['sch_dict'])
+        return redirect("/")
+
+    periods = {}
+    for i in x['sch_list']:
+        c = db.classes.find_one({'code': i[:-2], 'ext': i[-2:]})
+        if 'period' in c:
+            periods[c['period']] = i        
+
+    return render_template("schedule.html", L = list(set(x['sch_list'])), D = periods)
 
 @app.route("/<code>")
-def class(code):
+def classpage(code):
     return render_template("class.html")
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -120,15 +134,16 @@ def login():
             sch_list = []
             for i in request.form.get("txtsched").split("\n"):
                 if (i != ""):
-                    print i
-                    sch_list.append(i.split()[0])
+                    sch_list.append(i.split()[0]+i.split()[1])
+                    db.classes.update(
+                        {'code':i.split()[0], 'ext':i.split()[1], 'teacher':join(i.split()[2:])},
+                        {'$addToSet': {'students':username}}, 
+                        True)
 
-            sch_list.remove('ZLN5')
-            sch_dict = {str(x+1) : '' for x in range(10)}
-            sch_dict['6'] = 'ZLN5'
+            db.users.update({'name':username}, {'$set': {
+                'schedule':request.form.get("txtsched").split("\n"),
+                'sch_list':sch_list}})
 
-            db.users.update({'name':username}, {'$set':{'sch_list':sch_list, 'sch_dict':sch_dict}})
-            
             return redirect(url_for('schedule'))
             
         #IF NOTHING INPUT, SAMPLE SCHEDULE IS READY
@@ -350,13 +365,9 @@ def enter():
         #return "HI"
 
 if __name__== "__main__":
-    db.users.remove()
+    #db.users.remove()
+    #db.classes.remove()
+    db.users.insert({'name':'b','pword':'b'})
+    db.classes.insert({'code':'ZLN5','ext':'03','teacher':'MESSE TARVIN','period':6})
     app.debug = True
     app.run(port=5555)
-
-
-'''            db.users.update({'name':username}, {'$set': {
-                'schedule':request.form.get("txtsched").split("\n"),
-                'sch_list':sch_list,
-                'sch_dict':sch_dict
-            }})''' #For Later
