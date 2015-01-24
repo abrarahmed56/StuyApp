@@ -39,8 +39,11 @@ def schedule():
         flash("Please add your schedule")
         #return redirect(url_for(''))
         return "please add your schedule"
-    return render_template("schedule.html", L = list(set(x['sch_list'])), S = x['sch_dict'], url1='/logout', link1='Logout')
+    return render_template("schedule.html", L = list(set(x['sch_list'])), D = x['sch_dict'], url1='/logout', link1='Logout')
 
+@app.route("/<code>")
+def class(code):
+    return render_template("class.html")
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -291,3 +294,10 @@ if __name__== "__main__":
     #db.users.remove()
     app.debug = True
     app.run(port=5555)
+
+
+'''            db.users.update({'name':username}, {'$set': {
+                'schedule':request.form.get("txtsched").split("\n"),
+                'sch_list':sch_list,
+                'sch_dict':sch_dict
+            }})''' #For Later
