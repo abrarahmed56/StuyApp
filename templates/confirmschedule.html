@@ -25,8 +25,9 @@
 <div class="container jumbotron" style="border-radius:30px">
 <h1>Hello {{username}}!</h1>
 Please confirm/edit your schedule:
-<form method="POST" action="/confirm/{{username}}/{{schedule}}">
+<form method="POST">
 <textarea type="text" rows="10" cols="100" name="schedule" value={{schedule}}>{{schedule}}</textarea>
 <input type="submit" name="confirm" value="Confirm"></submit>
+<input type="submit" name="back" value="Go Back"></submit>
 </form>
 </html>

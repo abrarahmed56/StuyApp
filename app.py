@@ -112,130 +112,42 @@ def loggedin():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            newFileName = username + ".bmp"
-            os.rename("tmp/"+file.filename, "tmp/" + newFileName)
+            newFileName = username + ".jpg"
+            session['img'] = newFileName
+            os.rename("tmp/"+file.filename, "static/" + newFileName)
             img = Image.open("tmp/" + newFileName)
-            for x in db.users.find():
-                print "mongo: " + str(x)
-            schedule = image_to_string(img)
-            os.remove("tmp/"+newFileName)
-            db.users.update({'name':username}, {'$set':{'schedule':schedule}})
+            return redirect(url_for("crop"))
+            #schedule = image_to_string(img)
+            #os.remove("tmp/"+newFileName)
+            #db.users.update({'name':username}, {'$set':{'schedule':schedule}})
             #return schedule
             #return render_template("confirmschedule.html", username=username, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
         #CHECK IF TEXT PASTED
         elif request.form.get("txtsched") != "":
-            sch_list = []
-            for i in request.form.get("txtsched").split("\n"):
-                if (i != ""):
-                    sch_list.append(i.split()[0]+i.split()[1])
-                    db.classes.update(
-                        {'code':i.split()[0], 'ext':i.split()[1], 'teacher':join(i.split()[2:])},
-                        {'$addToSet': {'students':username}}, 
-                        True)
+            schedule = request.form.get("txtsched")
+        else:
+            return "Something went wrong, you shouldn't be here"
+        sch_list = []
+        for i in schedule.split("\n"):
+            if (i != ""):
+                sch_list.append(i.split()[0]+i.split()[1])
+                db.classes.update(
+                    {'code':i.split()[0], 'ext':i.split()[1], 'teacher':join(i.split()[2:])},
+                    {'$addToSet': {'students':username}}, 
+                    True)
 
-            db.users.update({'name':username}, {'$set': {
-                'schedule':request.form.get("txtsched").split("\n"),
-                'sch_list':sch_list}})
+        db.users.update({'name':username}, {'$set': {
+            'schedule':schedule.split("\n"),
+            'sch_list':sch_list}})
 
-            return redirect(url_for('schedule'))
-            
-        #IF NOTHING INPUT, SAMPLE SCHEDULE IS READY
-        sampleScheduleForTesting = """EES 02 SCHECHTER HES 04 MCROYMENDELL HLS 01 WEISSMAN HVS 06 TRAINOR MQS 01 BROOKS PES 01 CHOY SQS 01 REEP ZLN 05 GEL LOWE ZQT 01 SPORTS TEAM"""
-        s = ""
-        wordsList = []
-        for x in sampleScheduleForTesting:
-            if x == " ":
-                print s
-                wordsList.append(s)
-                s = ""
-            else:
-                s += x
-        wordsList.append(s)
-        eachLine = []
-        #for word in wordsList:
-        i = len (wordsList) - 1
-        numIndeces = []
-        while i >= 0:
-            word = wordsList[i]
-            try:
-                int(word)
-                numIndeces.append(i)
-                print word + "is a number"
-            except:
-                print word + "not number"
-            i = i - 1
-        #for k in range 
-        tempList = []
-        tempList.append(wordsList[numIndeces[0]-1])
-        tempList.append(wordsList[numIndeces[0]])
-        j = numIndeces[0] + 1
-        s = ""
-        while j < len(wordsList):
-            s = s + wordsList[j] + " "
-            j = j + 1
-        tempList.append(s[:-1])
-        print tempList
-        for k in range (numIndeces[0], len(wordsList)):
-            s += wordsList[k] + " "
-        j = 1
-        allClasses = []
-        while j < len(numIndeces):
-            #print wordsList[numIndeces[j]]
-            tempList = []
-            tempList.append(wordsList[numIndeces[j]-1])
-            tempList.append(wordsList[numIndeces[j]])
-            #print tempList
-            s = ""
-            for k in range (numIndeces[j]+1, numIndeces[j-1]-1):
-                s = s + wordsList[k] + " "
-            tempList.append(s[:-1])
-            print tempList
-            allClasses.append(tempList)
-            print wordsList[numIndeces[j-1]-1]
-            #print str(numIndeces[j]) + " " + str(numIndeces[j-1])
-            '''for k in range(numIndeces[j], numIndeces[j-1]-1):
-                print "k: " + wordsList[k]'''
-            #tempList.append(wordsList[numIndeces[k]])
-            #tempList.append(s)
-            j = j + 1
-        db.students.insert({'name':'adduserlater', 'id':1847, 'classes': allClasses})
-        print allClasses
-        for x in db.students.find():
-            print x
-        """
-        classes = ["EE", "HE", "HL", "HV", "MQ"]
-        sections = [ "02", "04", "01", "06", "01" ]
-        teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
-        db.classes.insert({'student name': 'Blah'})"""
-        return str(wordsList)
-        #return image_to_string(img)
-        #return "HI"
+        #return redirect(url_for('schedule'))
+        #db.users.update({'name':username}, {'$set':{'sch_list':sch_list}})
+        #print "sch_dict: " + str(sch_dict)
+        return redirect(url_for('confirm'))
 
-        db.users.update({'name':username}, {'$set':{'sch_list':sch_list}})
-        print "sch_dict: " + str(sch_dict)
-        return redirect(url_for('schedule'))
-
-        '''       schedule = request.form.get("txtsched")
-        print schedule
-        username = request.form.get("username", None)
-        friends={}
-        classNum = 0
-        for line in schedule.split("\n"):
-            classNum += 1
-            print "beginning of line: " + " ".join(line.split())
-            db.classes.insert({"teachername": line.split()[0], "section": line.split()[1], "teacher": line.split()[2], "studentname": username})
-###DOESN'T WORK YET, BUT ALMOST-- this finds other people that share your classes
-            otherPeople = db.classes.find({"teachername": line.split()[0], "section": line.split()[1], "teacher": line.split()[2]})
-            for friend in otherPeople:
-                friends[classNum]=friend['studentname']
-        for x in db.classes.find():
-            print x
-        print "FRIENDS LIST: " + str(friends)
-        #db.classes.remove()
-        return render_template("schedule.html",url2="/",link2="Home",url1="/register",link1="Register")'''
-    #LOGGING IN FOR THE FIRST TIME/LOGGING IN WITHOUT HAVING PREVIOUSLY UPLOADED A SCHEDULE
+    #LOGGING IN FOR THE FIRST TIME/LOGGING IN WITHOUT CONFIRMING/UPLOADING SCHEDULE
     else:
-        #CHECK IF SCHEDULE IS UPLOADED
+        '''    #CHECK IF SCHEDULE IS UPLOADED
         if db.users.find_one({'name': username, 'schedule': 0}) == None:
             #img = Image.open("tmp/"+username+".bmp")
             #schedule = image_to_string(img)
@@ -251,9 +163,9 @@ def loggedin():
                 #return redirect(url_for("/confirm/", username=username, schedule=schedule))
                 return render_template("confirmschedule.html", username=username, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
         #SCHEDULE NOT UPLOADED
-        else:
-            #db.users.update({'name':username}, {'$set':{'schedule':1}})
-            return render_template("loggedin.html", username=username, n=0,url1="/exclusive",link1="Exclusively for Users",url2="/logout",link2="Logout")
+        else:'''
+        #db.users.update({'name':username}, {'$set':{'schedule':1}})
+        return render_template("loggedin.html", username=username, n=0,url1="/exclusive",link1="Exclusively for Users",url2="/logout",link2="Logout")
 
 
 @app.route("/register",methods=["GET","POST"])
@@ -263,7 +175,7 @@ def register():
         username = request.form.get("username", None)
         passw = request.form.get("password", None)
         error = None
-        #db.users.remove()
+        db.users.remove()
         if db.users.find_one ( { 'name' : username } ) == None:
             if username == "":
                 flash("Please enter a username")
@@ -281,13 +193,27 @@ def register():
             return redirect(url_for('register'))
     return render_template("register.html",url2="/login",link2="Login",url0="/",link0="Home",url1="/about",link1="About")
 
-@app.route("/confirm/<username>/<schedule>", methods=["GET", "POST"])
-def confirm(username, schedule):
-    if session['user'] == username:
-        db.users.update({'name':username}, {'$set':{'confirmed':1}})
-        return redirect(url_for('analyzeSchedule',username=username, schedule=schedule))
-    else:
-        return "dont enter this url"
+@app.route("/confirm", methods=["GET", "POST"])
+def confirm():
+    if request.method=="POST":
+        print "HELLO"
+        confirmed = request.form.get("confirm", None)
+        back = request.form.get("back", None)
+        print "conf"
+        if confirmed != None:
+            print "conf"
+            return redirect(url_for("schedule"))
+        elif back != None:
+            return redirect(url_for("loggedin"))
+            #return render_template("loggedin.html")
+    username = session['user']
+    #q = db.users.find_one({'name':username})
+    #schedule = q['sch_list']
+    return render_template("confirmschedule.html", schedule=schedule)
+    #db.users.update({'name':username}, {'$set':{'confirmed':1}})
+    #return redirect(url_for('analyzeSchedule',username=username, schedule=schedule))
+    #else:
+    #return "dont enter this url"
 
 @app.route("/analyzeSchedule/<username>/<schedule>", methods=["GET", "POST"])
 def analyzeSchedule(username, schedule):
@@ -298,6 +224,27 @@ def logout():
     print "logout"
     del session['user']
     return redirect(url_for('home'))
+
+@app.route("/crop", methods=["GET", "POST"])
+def crop():
+    #this saves the cropped image
+    if request.method=="POST":
+        url = 'http://104.236.74.79/StuyApp/templates/bs.php?'
+        x = "x=" + request.form.get("x")
+        y = "y=" + request.form.get("y")
+        w = "w=" + request.form.get("w")
+        h = "h=" + request.form.get("h")
+        url = url + x + "&" + y + "&" + w + "&" + h + "&submit=submit"
+        #run this on server, image will be saved there
+        #r = urllib2.urlopen(url)
+        #img = Image.open(////path to saved image)
+        #schedule = img_to_string(img)
+        #session['schedule']=schedule
+        return redirect(url_for("confirm"))
+    else:
+        username = session['user']
+        newFileName = session['img']
+        return render_template("crop.html", img=newFileName)#remember to do image = uploaded image
 
 @app.route("/enter", methods=["GET", "POST"])
 def enter():
@@ -318,7 +265,15 @@ def enter():
     else:
         ###Screenshotting works if you zoom in to make your schedule fit the entire window
         img = Image.open("blah/scheduleforfinalproject.jpg")
-        sampleScheduleForTesting = """EES 02 SCHECHTER HES 04 MCROYMENDELL HLS 01 WEISSMAN HVS 06 TRAINOR MQS 01 BROOKS PES 01 CHOY SQS 01 REEP ZLN 05 GEL LOWE ZQT 01 SPORTS TEAM"""
+        sampleScheduleForTesting = """EES 02 SCHECHTER
+HES 04 MCROYMENDELL 
+HLS 01 WEISSMAN 
+HVS 06 TRAINOR 
+MQS 01 BROOKS 
+PES 01 CHOY 
+SQS 01 REEP 
+ZLN 05 GEL LOWE 
+ZQT 01 SPORTS TEAM"""
         s = ""
         wordsList = []
         for x in sampleScheduleForTesting:
