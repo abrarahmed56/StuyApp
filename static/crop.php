@@ -3,7 +3,7 @@
 $targ_w = $targ_h = 150;
 $jpeg_quality = 90;
 
-$src = 'demo_files/flowers.jpg';
+$src = 'scheduleforfinalproject.bmp';
 $img_r = imagecreatefromjpeg($src);
 $dst_r = ImageCreateTrueColor( $targ_w, $targ_h );
 
