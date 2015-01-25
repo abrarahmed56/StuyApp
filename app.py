@@ -9,7 +9,7 @@ import base64
 import cgi
 import cgitb; cgitb.enable()
 
-UPLOAD_FOLDER = './tmp/'
+UPLOAD_FOLDER = './static/'
 ALLOWED_EXTENSIONS = set(['png', 'bmp', 'jpg'])
 
 form = cgi.FieldStorage()
@@ -110,12 +110,13 @@ def loggedin():
         print boo
         #CHECK IF IMAGE UPLOADED
         if file and allowed_file(file.filename):
+            print "image"
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             newFileName = username + ".jpg"
             session['img'] = newFileName
-            os.rename("tmp/"+file.filename, "static/" + newFileName)
-            img = Image.open("tmp/" + newFileName)
+            os.rename("static/"+file.filename, "static/" + newFileName)
+            #img = Image.open("tmp/" + newFileName)
             return redirect(url_for("crop"))
             #schedule = image_to_string(img)
             #os.remove("tmp/"+newFileName)
@@ -227,24 +228,33 @@ def logout():
 
 @app.route("/crop", methods=["GET", "POST"])
 def crop():
+    print "crop"
+    username = session['user']
+    newFileName = session['img']
+    print newFileName
     #this saves the cropped image
     if request.method=="POST":
+        username = session['user']
         url = 'http://104.236.74.79/StuyApp/templates/bs.php?'
         x = "x=" + request.form.get("x")
         y = "y=" + request.form.get("y")
         w = "w=" + request.form.get("w")
         h = "h=" + request.form.get("h")
-        url = url + x + "&" + y + "&" + w + "&" + h + "&submit=submit"
+        s = "source=../static/" + newFileName
+        url = url + x + "&" + y + "&" + w + "&" + h + "&submit=submit" + "&" + s
         #run this on server, image will be saved there
-        #r = urllib2.urlopen(url)
-        #img = Image.open(////path to saved image)
-        #schedule = img_to_string(img)
+        r = urllib2.urlopen(url)
+        img = Image.open("templates/images/tst.jpg")
+        print "post"
+        schedule = image_to_string(img)
+        print "no error in pytesser"
         #session['schedule']=schedule
-        return redirect(url_for("confirm"))
+        #return redirect(url_for("confirm"))
+        return schedule
+        #return url
     else:
-        username = session['user']
-        newFileName = session['img']
-        return render_template("crop.html", img=newFileName)#remember to do image = uploaded image
+        #return "hello"
+        return render_template("crop.html", img=newFileName)
 
 @app.route("/enter", methods=["GET", "POST"])
 def enter():
@@ -342,9 +352,9 @@ ZQT 01 SPORTS TEAM"""
         teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
         db.classes.insert({'student name': 'Blah'})"""
         #return str(wordsList)
-        #return image_to_string(img)
+        return image_to_string(img)
         #return "hello"
-        return render_template("crop.html")
+        #return render_template("crop.html")
 
 if __name__== "__main__":
     #db.users.remove()
