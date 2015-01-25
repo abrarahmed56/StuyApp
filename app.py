@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = set(['png', 'bmp', 'jpg'])
 
 form = cgi.FieldStorage()
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/static")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = "secret"
 conn = Connection()
@@ -302,7 +302,19 @@ def logout():
 @app.route("/enter", methods=["GET", "POST"])
 def enter():
     if request.method=="POST":
-        return "hi"
+        url = 'http://104.236.74.79/StuyApp/templates/bs.php?'
+        x = "x=" + request.form.get("x")
+        y = "y=" + request.form.get("y")
+        w = "w=" + request.form.get("w")
+        h = "h=" + request.form.get("h")
+        url = url + x + "&" + y + "&" + w + "&" + h + "&submit=submit"
+        r = urllib2.urlopen(url)
+        #print "r: " + str(r)
+        #result = r.read()
+        #print "result: " + str(result)
+        #print d
+        return url
+        #return app.send_static_file('crop.php')
     else:
         ###Screenshotting works if you zoom in to make your schedule fit the entire window
         img = Image.open("blah/scheduleforfinalproject.jpg")
@@ -376,6 +388,7 @@ def enter():
         db.classes.insert({'student name': 'Blah'})"""
         #return str(wordsList)
         #return image_to_string(img)
+        #return "hello"
         return render_template("crop.html")
 
 if __name__== "__main__":
