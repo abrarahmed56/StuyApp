@@ -167,8 +167,10 @@ def loggedin():
         #CHECK IF IMAGE UPLOADED
         if file and allowed_file(file.filename):
             q = db.users.find_one({'name':username})
+            print q
             n = q['n']
             q['n'] = n + 1
+            db.users.update({'name':username}, {'$inc': {'n': 1}})
             print "image"
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
@@ -245,7 +247,7 @@ def register():
             if passw == "":
                 flash("Please enter a password")
                 return redirect(url_for('register'))
-            db.users.insert ( { 'name': username, 'pword': passw, 'schedule': 0, 'confirmed': 0} )
+            db.users.insert ( { 'name': username, 'pword': passw, 'schedule': 0, 'confirmed': 0, 'n': 0} )
             #return "<h1>Thanks for joining!</h1>" + str ( { 'name':username, 'pword': passw } )
             flash("Thanks for joining! Please log in now.")
             return redirect(url_for('login'))

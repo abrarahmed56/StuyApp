@@ -2,7 +2,15 @@
    echo "Hi";
    if ( isset($_GET['submit']) ) {
       echo "Hi again";
-      $targ_w = $targ_h = 500;
+      //$targ_w = $targ_h = 500;
+      $proportion = $_GET['h'] / $_GET['w'];
+      if ( $proportion > 1 ) {
+      	 $targ_w = 500;
+	 $targ_h = $proportion * $targ_w;
+      } else {
+      	$targ_h = 500;
+	$targ_w = $targ_h / $proportion;
+      }
       $jpeg_quality = 90;
 
       $src = $_GET['source'];
