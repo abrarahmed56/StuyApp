@@ -24,18 +24,18 @@
   <div class="row">
     <div class="col-md-1">Period</div>
     <div class="col-md-1">Class</div>
-    <div class="col-md-1">Teacher</div>
+    <div class="col-md-3">Teacher</div>
   </div>
   {% for i in range(10) %}
   <div class="row">
     <div class="col-md-1">{{i+1}}</div>
-    <div class="col-md-1">{{D[i+1]}}</div>
-    <div class="col-md-1"><a href="http://www.ratemyteachers.com/stuyvesant-high-school/13765-s?q={{T[i|string]}}">{{T[i|string]}}</a></div>
+    <div class="col-md-1"><a href="class/{{D[i+1]}}">{{D[i+1]}}</a></div>
+    <div class="col-md-3">{{T[i+1]}}</div>
   </div>
   {% endfor %}
   </div>
   <br><br>
-  Classes with undetermined periods: <br>
+  All Classes: <br>
   <ul>
     {% for i in L %}
     <li> {{i}} </li>

@@ -1,0 +1,14 @@
+<h1> {{code}} </h1>
+<h1> {{teacher}} </h1>
+<h2> Period: {{period}} </h2>
+Similar Classes: <br>
+{% for i in similar %}
+<a href="/{{code[:-2]+i}}"> {{code[:-2]+i}} </a> <br>
+{% endfor %}
+<br>
+Students: <br>
+<ul>
+{% for i in students %}
+<li>{{i}}</li>
+{% endfor %}
+</ul>

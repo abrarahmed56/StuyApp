@@ -46,16 +46,43 @@ def schedule():
         return redirect("/")
 
     periods = {}
+    teachers = {}
+
     for i in x['sch_list']:
         c = db.classes.find_one({'code': i[:-2], 'ext': i[-2:]})
         if 'period' in c:
             periods[c['period']] = i        
+            teachers[c['period']] = c['teacher']
 
-    return render_template("schedule.html", L = list(set(x['sch_list'])), D = periods)
+    return render_template("schedule.html", L = list(set(x['sch_list'])), D = periods, T = teachers)
 
-@app.route("/<code>")
+@app.route("/class/<code>")
 def classpage(code):
-    return render_template("class.html")
+    print code[:-2]
+    print code[-2:]
+    print "____________"
+    for i in db.classes.find():
+        print i
+    for i in db.users.find():
+        print i
+
+    x = db.classes.find_one({'code':code[:-2],'ext': code[-2:]})
+    y = db.classes.find({'code':code[:-2]})
+
+    if (x == None):
+        return "This class does not exist"
+
+    similar = []
+    for i in y:
+        similar.append(i['ext'])
+    students = x['students']
+    if 'period' in x:
+        period = x['period']
+    else:
+        period = "Unknown"
+    teacher = x['teacher']
+
+    return render_template("class.html", code=code, similar = y, students = students, period = period, teacher = teacher)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -347,9 +374,15 @@ ZQT 01 SPORTS TEAM"""
         return render_template("crop.html")
 
 if __name__== "__main__":
-    #db.users.remove()
-    #db.classes.remove()
+    db.users.remove()
+    db.classes.remove()
     db.users.insert({'name':'b','pword':'b'})
-    db.classes.insert({'code':'ZLN5','ext':'03','teacher':'MESSE TARVIN','period':6})
+    #db.classes.insert({'code':'ZLN5','ext':'03','students':[],'teacher':'MESSE TARVIN','period':6})
+
+    for i in db.users.find():
+        print i
+    for i in db.classes.find():
+        print i
+
     app.debug = True
     app.run(port=5555)
