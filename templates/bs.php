@@ -5,11 +5,11 @@
       //$targ_w = $targ_h = 500;
       $proportion = $_GET['h'] / $_GET['w'];
       if ( $proportion > 1 ) {
-      	 $targ_w = 500;
-	 $targ_h = $proportion * $targ_w;
+      	 $targ_h = 500;
+	 $targ_w = $targ_h / $proportion;
       } else {
-      	$targ_h = 500;
-	$targ_w = $targ_h / $proportion;
+      	$targ_w = 500;
+	$targ_h = $proportion * $targ_w;
       }
       $jpeg_quality = 90;
 

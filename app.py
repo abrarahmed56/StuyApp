@@ -20,6 +20,25 @@ app.secret_key = "secret"
 conn = Connection()
 db = conn ['stuyapp']
 
+def checkFormat(L): #checks the format of user's schedule- class/section/teacher vs pd/class/title
+    L = ''.join(L.split())
+    L = L.lower()
+    if L == "classsectionteacher":
+        return "class"
+    if L[:5] == "class":
+        #return "unsureclass"
+        return "class"
+    if L[:-8] == "teacher":
+        #return "unsureclass"
+        return "class"
+    if L == "pdcodetitle":
+        return "pd"
+    if L[:2] == "pd":
+        return "pd"
+    if L[:-5] == "title":
+        return "pd"
+    return "fail"
+
 def join(L): #Joins a list of strings by spaces
     s = ""
     for i in L:
@@ -200,9 +219,10 @@ def loggedin():
             print "text pasted: " + schedule
         else:
             return "Something went wrong, you shouldn't be here"
-        print "render confirm"
+        print "redirect confirm"
         return redirect(url_for('confirm'))
-
+    elif db.users.find_one({'name':username, 'confirmed':1}) != None:
+        return redirect(url_for("schedule"))
     #LOGGING IN FOR THE FIRST TIME/LOGGING IN WITHOUT CONFIRMING/UPLOADING SCHEDULE
     else:
         #db.users.update({'name':username}, {'$set':{'schedule':1}})
@@ -238,25 +258,39 @@ def register():
 @app.route("/confirm", methods=["GET", "POST"])
 def confirm():
     if request.method=="POST":
+        print "confirm method = post"
         schedule = request.form.get("scheduleCodes")
+        schedule = schedule.split("\n")
+        print "schedule obtained"
         scheduleSections = request.form.get("scheduleSections")
+        print "sections obtained"
+        scheduleSections = scheduleSections.split("\n")
         teachers = request.form.get("scheduleTeachers")
+        print "teachers obtained"
+        teachers = teachers.split("\n")
         username = session['user']
+        print "username obtained"
         sch_list = []
-        print "in confirm: " + schedule
+        print "in confirm: " + str(schedule)
         #for i in schedule.split("\n"):
-        for i in range(len(schedule.split('\n'))-1):
-            if (i != ""):
-                print i
-                sch_list.append(schedule[i]+scheduleSections[i])
-                db.classes.update(
+        print str(range(10))
+        print schedule
+        for i in range(len(schedule)-1):
+            print "i in range" + str(i)
+            #if i != "":
+            print "schedule[i]: " + schedule[i]
+            print "sections[i]: " + scheduleSections[i]
+            sch_list.append(schedule[i]+scheduleSections[i])
+            db.classes.update(
                 {'code':schedule[i], 'ext':scheduleSections[i], 'teacher':teachers[i]},
                 {'$addToSet': {'students':username}}, 
                 True)
 
+        print "for loop successfully ended"
         db.users.update({'name':username}, {'$set': {
-            'schedule':schedule.split("\n"),
-            'sch_list':sch_list}})
+            'schedule':schedule,
+            'sch_list':sch_list,
+            'confirmed':1}})
 
         for i in db.classes.find({'code':'ZLN5'}):
             i['period'] = int(i['ext']) + 3
@@ -279,15 +313,27 @@ def confirm():
     #q = db.users.find_one({'name':username})
     #schedule = q['sch_list']
     print "render in confirm: " + schedule
+    print "end schedule"
     scheduleCodes = []
     schedulePeriods = []
     scheduleSections = []
     scheduleTeachers = []
-    if ''.join(schedule.split("\n")[0].split()) == "ClassSectionTeacher":
-        for s in schedule.split("\n"):
-            scheduleCodes.append(s.split()[0])
-            scheduleSections.append(s.split()[1])
-            scheduleTeachers.append(join(s.split()[2:]))
+    scheduleTitles = []
+    #if ''.join(schedule.split("\n")[0].split()) == "ClassSectionTeacher":
+    formatOfFile = checkFormat(schedule.split("\n")[0])
+    print "format: " + formatOfFile
+    #if formatOfFile[:-5] == "class":
+    if formatOfFile == "class":
+        print "format == class"
+        for s in schedule.split("\n")[1:]:
+            ' '.join(s.split())
+            if len(s.split())>=3:
+                print "s: " + s
+                scheduleCodes.append(s.split()[0])
+                scheduleSections.append(s.split()[1])
+                scheduleTeachers.append(join(s.split()[2:]))
+            else:
+                print "s<3: " + s
         print "class section teacher format"
         print "\n".join(scheduleTeachers)
         st = ""
@@ -313,18 +359,54 @@ def confirm():
                 if ord(c) < 128:
                     tmp = tmp + c
             sc = sc + tmp + "\n"
-        print "done"
-        print st
-        return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers=st, scheduleSections=ss, scheduleCodes=sc, username=username)
+        print "st: " + st
+        print "ss: " + ss
+        print "sc: " + sc
+        print "render confirm"
+        return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers=st, scheduleSections=ss, scheduleCodes=sc, scheduleTitles='null', username=username)
+        #return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers='null', scheduleSections='null', scheduleCodes='null', scheduleTitles='null', username=username)
 
         #return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers=''.join(scheduleTeachers), scheduleSections=''.join(scheduleSections), scheduleCodes=''.join(scheduleCodes), username=username)
-    elif schedule.split("\n")[0] == "Period Class Teacher":
-        return "other"
+    elif formatOfFile == "pd":
+        #elif ''.join(schedule.split("\n")[0].split()) == "PdCodeTitle":
+        print "sched: " + str(schedule)
+        print "pd code title"
+        print "ord: " + str(ord("_"))
+        for s in schedule.split("\n"):
+            print s
+            schedulePeriods.append(s.split()[0])
+            scheduleCodes.append(s.split()[1])
+            scheduleTitles.append(join(s.split()[2:]))
+        print "pds: " + str(schedulePeriods);
+        sp = ""
+        for s in schedulePeriods:
+            tmp = ""
+            for c in s:
+                if ord(c) < 128:
+                    tmp = tmp + c
+            sp = sp + tmp + "\n"
+        print "codes: " + str(scheduleCodes)
+        sc = ""
+        for s in scheduleCodes:
+            tmp = ""
+            for c in s:
+                if ord(c) < 128:
+                    tmp = tmp + c
+            sc = sc + tmp + "\n"
+        print scheduleTitles
+        st = ""
+        for s in scheduleTitles:
+            tmp = ""
+            for c in s:
+                if ord(c) < 128:
+                    tmp = tmp + c
+            st = st + tmp + "\n"
+        return render_template("confirmschedule.html", schedulePeriods=sp, scheduleTeachers='null', scheduleSections='null', scheduleCodes=sc, scheduleTitles=st, username=username)
+
     else:
-        return schedule.split("\n")[0].replace(" ", "").compareTo("ClassSectionTeacher")
         return "cropping failed, please try manual input"
-    print "render confirm"
-    return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers='null', scheduleSections='null', scheduleCodes='null')
+    print "render confirm, shouldnt be here"
+    return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers='null', scheduleSections='null', scheduleCodes='null', username=username)
     #db.users.update({'name':username}, {'$set':{'confirmed':1}})
     #return redirect(url_for('analyzeSchedule',username=username, schedule=schedule))
     #else:
@@ -360,8 +442,11 @@ def crop():
         r = urllib2.urlopen(url)
         img = Image.open("templates/images/tst.jpg")
         print "post"
-        schedule = image_to_string(img)
-        os.remove("static/"+newFileName)
+        try :
+            schedule = image_to_string(img)
+            os.remove("static/"+newFileName)
+        except :
+            return "schedule could not be read, please try again"
         print "no error in pytesser"
         session['sched']=schedule
         print "image posted: " + schedule

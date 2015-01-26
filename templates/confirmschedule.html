@@ -25,10 +25,22 @@
 <h1>Hello {{username}}!</h1>
 Please confirm/edit your schedule:
 <form method="POST">
-<textarea type="text" rows="10" cols="20" name="scheduleCodes" value={{scheduleCodes}}>{{scheduleCodes}}</textarea>
-<textarea type="text" rows="10" cols="20" name="scheduleTeachers" value={{scheduleTeachers}}>{{scheduleTeachers}}</textarea>
-<textarea type="text" rows="10" cols="20" name="scheduleSections" value={{scheduleSections}}>{{scheduleSections}}</textarea>
-<textarea type="text" rows="10" cols="20" name="schedulePeriods" value={{schedulePeriods}}>{{schedulePeriods}}</textarea>
+<table>
+  <tr>
+    <td><b>Class Codes</b></td>
+    <td><b>Teachers</b></td>
+    <td><b>Section</b></td>
+    <td><b>Period</b></td>
+    <td><b>Class Title</b></td>
+  </tr>
+  <tr>
+    <td><textarea type="text" rows="10" cols="20" name="scheduleCodes" value={{scheduleCodes}}>{{scheduleCodes}}</textarea></td>
+    <td><textarea type="text" rows="10" cols="20" name="scheduleTeachers" value={{scheduleTeachers}}>{{scheduleTeachers}}</textarea></td>
+    <td><textarea type="text" rows="10" cols="20" name="scheduleSections" value={{scheduleSections}}>{{scheduleSections}}</textarea></td>
+    <td><textarea type="text" rows="10" cols="20" name="schedulePeriods" value={{schedulePeriods}}>{{schedulePeriods}}</textarea></td>
+    <td><textarea type="text" rows="10" cols="20" name="scheduleTitles" value={{scheduleTitles}}>{{scheduleTitles}}</textarea></td>
+  </tr>
+</table>
 <input type="submit" name="confirm" value="Confirm"></submit>
 <input type="submit" name="back" value="Go Back"></submit>
 </form>
