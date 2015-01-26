@@ -130,10 +130,14 @@ def loggedin():
         print boo
         #CHECK IF IMAGE UPLOADED
         if file and allowed_file(file.filename):
+            q = db.users.find_one({'name':username})
+            n = q['n']
+            q['n'] = n + 1
             print "image"
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            newFileName = username + ".jpg"
+            newFileName = username + str(n) + ".jpg"
+            print "newFileName: " + newFileName
             session['img'] = newFileName
             os.rename("static/"+file.filename, "static/" + newFileName)
             #img = Image.open("tmp/" + newFileName)
@@ -197,7 +201,7 @@ def register():
         username = request.form.get("username", None)
         passw = request.form.get("password", None)
         error = None
-        db.users.remove()
+        #db.users.remove()
         if db.users.find_one ( { 'name' : username } ) == None:
             if username == "":
                 flash("Please enter a username")
@@ -268,6 +272,7 @@ def crop():
         img = Image.open("templates/images/tst.jpg")
         print "post"
         schedule = image_to_string(img)
+        os.remove("static/"+newFileName)
         print "no error in pytesser"
         #session['schedule']=schedule
         #return redirect(url_for("confirm"))
@@ -275,6 +280,7 @@ def crop():
         #return url
     else:
         #return "hello"
+        print "before crop: " + newFileName
         return render_template("crop.html", img=newFileName)
 
 @app.route("/enter", methods=["GET", "POST"])
@@ -373,9 +379,9 @@ ZQT 01 SPORTS TEAM"""
         teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
         db.classes.insert({'student name': 'Blah'})"""
         #return str(wordsList)
-        return image_to_string(img)
+        #return image_to_string(img)
         #return "hello"
-        #return render_template("crop.html")
+        return render_template("crop.html",img=usr+".jpg")
 
 if __name__== "__main__":
     db.users.remove()
@@ -389,4 +395,4 @@ if __name__== "__main__":
         print i
 
     app.debug = True
-    app.run(port=5555)
+    app.run(port=5555,extra_files="/static/*")
