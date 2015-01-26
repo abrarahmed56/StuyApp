@@ -52,13 +52,21 @@ def allowed_file(filename):
 def home(): 
     return render_template("home.html",url1="/login",link1="Login",url2="/register",link2="Register",url0="/about",link0="About")
 
-@app.route("/schedule")
+@app.route("/schedule", methods=["GET", "POST"])
 def schedule():
+    print "method schedule"
     username = session['user']
+    print "user in session"
+    if request.method == "POST":
+        print "schedule method = post"
+        db.users.update({"name":username},{'$set':{'confirmed':0}})
+        return redirect(url_for("loggedin"))
+    print "schedule"
     x = db.users.find_one({'name':username})
 
     for i in db.classes.find():
         print i
+    print "schedule2"
 
     if (x == None or 'sch_list' not in x.keys()):
         flash("Please add your schedule")
@@ -222,6 +230,7 @@ def loggedin():
         print "redirect confirm"
         return redirect(url_for('confirm'))
     elif db.users.find_one({'name':username, 'confirmed':1}) != None:
+        print "redirect schedule"
         return redirect(url_for("schedule"))
     #LOGGING IN FOR THE FIRST TIME/LOGGING IN WITHOUT CONFIRMING/UPLOADING SCHEDULE
     else:
