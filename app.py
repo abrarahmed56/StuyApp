@@ -188,6 +188,7 @@ def loggedin():
         #CHECK IF TEXT PASTED
         elif request.form.get("txtsched") != "":
             schedule = request.form.get("txtsched")
+            session['sched'] = schedule
         else:
             return "Something went wrong, you shouldn't be here"
         sch_list = []
@@ -206,7 +207,6 @@ def loggedin():
         for i in db.classes.find({'code':'ZLN5'}):
             i['period'] = int(i['ext']) + 3
             db.classes.save(i)
-
         return redirect(url_for('confirm'))
 
     #LOGGING IN FOR THE FIRST TIME/LOGGING IN WITHOUT CONFIRMING/UPLOADING SCHEDULE
@@ -271,6 +271,7 @@ def confirm():
             return redirect(url_for("loggedin"))
             #return render_template("loggedin.html")
     username = session['user']
+    schedule = session['sched']
     #q = db.users.find_one({'name':username})
     #schedule = q['sch_list']
     return render_template("confirmschedule.html", schedule=schedule)
@@ -312,9 +313,9 @@ def crop():
         schedule = image_to_string(img)
         os.remove("static/"+newFileName)
         print "no error in pytesser"
-        #session['schedule']=schedule
-        #return redirect(url_for("confirm"))
-        return schedule
+        session['sched']=schedule
+        return redirect(url_for("confirm"))
+        #return schedule
         #return url
     else:
         #return "hello"
