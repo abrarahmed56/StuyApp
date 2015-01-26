@@ -58,13 +58,6 @@ def schedule():
 
 @app.route("/class/<code>")
 def classpage(code):
-    print code[:-2]
-    print code[-2:]
-    print "____________"
-    for i in db.classes.find():
-        print i
-    for i in db.users.find():
-        print i
 
     x = db.classes.find_one({'code':code[:-2],'ext': code[-2:]})
     y = db.classes.find({'code':code[:-2]})
@@ -168,9 +161,10 @@ def loggedin():
             'schedule':schedule.split("\n"),
             'sch_list':sch_list}})
 
-        #return redirect(url_for('schedule'))
-        #db.users.update({'name':username}, {'$set':{'sch_list':sch_list}})
-        #print "sch_dict: " + str(sch_dict)
+        for i in db.classes.find({'code':'ZLN5'}):
+            i['period'] = int(i['ext']) + 3
+            db.classes.save(i)
+
         return redirect(url_for('confirm'))
 
     #LOGGING IN FOR THE FIRST TIME/LOGGING IN WITHOUT CONFIRMING/UPLOADING SCHEDULE
