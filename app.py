@@ -58,7 +58,7 @@ def schedule():
 
 @app.route("/class/<code>")
 def classpage(code):
-
+    code = code.replace("%20"," ")
     x = db.classes.find_one({'code':code[:-2],'ext': code[-2:]})
     y = db.classes.find({'code':code[:-2]})
 
@@ -76,6 +76,51 @@ def classpage(code):
     teacher = x['teacher']
 
     return render_template("class.html", code=code, similar = y, students = students, period = period, teacher = teacher)
+
+@app.route("/teacher/<teacher>")
+def teacherpage(teacher):
+    teacher = teacher.replace("%20"," ")
+    x = db.classes.find({'teacher':teacher})
+    classes = []
+    
+    if (x == None):
+        flash("This teacher has no classes")
+        return redirect("/")
+
+    periods = {}
+
+    for i in x:
+        classes.append(i['code']+i['ext'])
+        if 'period' in i:
+            periods[c['period']] = i        
+    
+    return render_template("teacher.html", teacher = teacher.title(), L = list(set(classes)), D = periods)
+
+@app.route("/student/<username>")
+def studentpage(username):
+    username = username.replace("%20"," ")
+    if (username == session['user']):
+        return redirect(url_for("schedule"))
+    x = db.users.find_one({'name':username})
+
+    for i in db.classes.find():
+        print i
+
+    if (x == None or 'sch_list' not in x.keys()):
+        flash("Please add your schedule")
+        return redirect("/")
+
+    periods = {}
+    teachers = {}
+
+    for i in x['sch_list']:
+        c = db.classes.find_one({'code': i[:-2], 'ext': i[-2:]})
+        if 'period' in c:
+            periods[c['period']] = i        
+            teachers[c['period']] = c['teacher']
+
+    return render_template("schedule.html", L = list(set(x['sch_list'])), D = periods, T = teachers)
+    
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -97,15 +142,6 @@ def login():
             return redirect(url_for('exclusive', user=username2))
         #CHECK IF USERNAME/PASSWORD VALID
         if db.users.find_one ( { 'name' : username , 'pword' : passw } ) != None:
-            n = db.users.update ( { 'name': username } , { '$inc': { 'n' : 1 } } )
-	    #for q in db.users.find({'name':username}):
- 	        #print int(str(q)[str(q).find("u'n': ")+6: str(q).rfind("}")])
-	    q = db.users.find({'name':username})[0]
-	    #n = int(str(q)[str(q).find("u'n': ")+6: str(q).rfind("}")])
-            n = q['n']
-            #n = 0
-            #n = n + 1
-            #session['n']=n
 	    for x in db.users.find({'name': username,'pword':passw}):
 	        print "bleh" + str(db.users.find({'name':username,'pword':passw}))
             session['user']=username
@@ -209,7 +245,7 @@ def register():
             if passw == "":
                 flash("Please enter a password")
                 return redirect(url_for('register'))
-            db.users.insert ( { 'name': username, 'pword': passw, 'n': 0 , 'schedule': 0, 'confirmed': 0} )
+            db.users.insert ( { 'name': username, 'pword': passw, 'schedule': 0, 'confirmed': 0} )
             #return "<h1>Thanks for joining!</h1>" + str ( { 'name':username, 'pword': passw } )
             flash("Thanks for joining! Please log in now.")
             return redirect(url_for('login'))
