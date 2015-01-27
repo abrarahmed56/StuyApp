@@ -1,4 +1,5 @@
 # StuyApp
+##By Abrar Ahmed, Andrew Sikowitz, and Alex Zilbersher
 Did you ever want to use an app to see who's in your classes, instead of putting up your schedule on facebook? Well now you can! With StuyApp, simply copy and paste your schedule, or upload a screenshot, and you can view the people in your class who have also signed up.
 
 Website available at stuyapp.jaaax.com thanks to freeDNS.org
