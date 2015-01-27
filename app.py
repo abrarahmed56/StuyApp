@@ -211,6 +211,7 @@ def loggedin():
             q = db.users.find_one({'name':username})
             print 'q: ' + str(q)
             n = q['n']
+            print "n: " + str(n)
             q['n'] = n + 1
             db.users.update({'name':username}, {'$inc': {'n': 1}})
             print "image"
@@ -337,6 +338,15 @@ def confirm():
                 if f == "pd":
                     #update classes to include user in q['pd'][pd#]
                     print "q exists, pd"
+                    qPeriods = q['sections']
+                    print "qPeriods: " + str(qPeriods)
+                    print str(periods[i])
+                    if periods[i] in qPeriods.keys():
+                        usersInQPeriods = qPeriods[periods[i]]
+                        usersInQPeriods.append(username)
+                    else:
+                        qPeriods[periods[i]] = [username]
+                    db.classes.update({'code':schedule[i]}, {'$set': {'sections': qPeriods}})
                 elif f == "class":
                     print "sections: " + str(q['sections'])
                     qSections = q['sections']
