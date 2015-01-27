@@ -50,6 +50,13 @@ def allowed_file(filename):
 def home(): 
     return render_template("home.html", logged = 'user' in session)
 
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    select = request.args.get("select")
+    search = request.args.get("search")
+    
+    return redirect("/"+select+"/"+search)
+
 @app.route("/about")
 def about():
     return render_template("about.html", logged = 'user' in session)
@@ -76,17 +83,11 @@ def schedule():
     #for i in db.classes.find():
     #print i
     print "schedule2"
-    if (x == None or 'sch_list' not in x.keys()):
-        flash("Please add your schedule")
-        print x.keys()
-        return redirect(url_for("loggedin"))
 
     periods = {}
     teachers = {}
 
     print "checkerror"
-    for i in x['sch_list']:
-        print i
 
     print "checkerror2"
     q = db.users.find_one({'name':username})
@@ -249,8 +250,8 @@ def allowed_file(filename):
 
 @app.route("/login",methods=["GET","POST"])
 def login():
-    db.users.update({},{'$set':{'confirmed':0}})
-    db.classes.remove()
+    #db.users.update({},{'$set':{'confirmed':0}})
+    #db.classes.remove()
     #LOG IN
     if request.method=="POST" and request.form.get("h")!="bleh":
         button = request.form.get("sub",None)
