@@ -142,7 +142,7 @@ def schedule():
     print "titles: " + str(titles)
     print "sections: " + str(sections)
     print "periods: " + str(periods)
-    return render_template("schedule2.html", L = schedule, D = schedule, T = teachers, titles=titles, periods=periods, teachers=teachers, sections=sections, col1="Code", col2="Class", col3="Teacher", col4="Section", col5="Period", schedule=schedule)
+    return render_template("schedule2.html", L = schedule, D = schedule, T = teachers, titles=titles, T2=teachers, periods=periods, teachers=teachers, sections=sections, col1="Code", col2="Class", col3="Teacher", col4="Section", col5="Period", schedule=schedule)
 
 @app.route("/class/<code>")
 def classpage(code):
