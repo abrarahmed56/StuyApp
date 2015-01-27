@@ -1,8 +1,0 @@
-<html>
-  <form method="POST">
-    <input type="text" name="username">
-    </input>
-    <input type="text" name="password">
-    </input>
-  </form>
-</html>

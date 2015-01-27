@@ -24,18 +24,21 @@
 <li><a href="/logout">Logout</a></li>
 {% endblock navbarr %}
 {% block bodycontent %}
-<h1> {{code}} </h1>
-<h1> <a href="/teacher/{{teacher}}">{{teacher}}</a> </h1>
-<h2> Period: {{period}} </h2>
-Similar Classes: <br>
-{% for i in similar %}
-<a href="/{{code[:-2]+i}}"> {{code[:-2]+i}} </a> <br>
-{% endfor %}
-<br>
-Students: <br>
-<ul>
-  {% for i in students %}
-  <li><a href="/student/{{i}}">{{i}}</a></li>
+<div class="container jumbotron" style="border-radius:30px">
+  <h2> Class: {{code}} </h1>
+  <h2> <a href="/teacher/{{teacher}}">Teacher: {{teacher}}</a> </h1>
+  <h3> Period: {{period}} </h2>
+  Similar Classes: <br>
+  {% for i in similar %}
+  <a href="/class/{{code[:-2]+i}}"> {{code[:-2]+i}} </a> <br>
   {% endfor %}
-</ul>
+  <br>
+  Students: <br>
+  <ul>
+    {% for i in students %}
+    <li><a href="/student/{{i}}">{{i}}</a></li>
+    {% endfor %}
+  </ul>
+</div>
 {% endblock bodycontent %}
+</html>
