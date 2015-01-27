@@ -145,6 +145,9 @@ def schedule():
 
 @app.route("/class/<code>")
 def classpage(code):
+    if 'user' not in session:
+        flash("Please login first")
+        return redirect(url_for("login"))
     code = code.replace("%20"," ")
     x = db.classes.find_one({'code':code[:-2],'ext': code[-2:]})
     y = db.classes.find({'code':code[:-2]})
@@ -166,6 +169,9 @@ def classpage(code):
 
 @app.route("/teacher/<teacher>")
 def teacherpage(teacher):
+    if 'user' not in session:
+        flash("Please login first")
+        return redirect(url_for("login"))
     teacher = teacher.replace("%20"," ")
     x = db.classes.find({'teacher':teacher})
     classes = []
@@ -185,6 +191,9 @@ def teacherpage(teacher):
 
 @app.route("/student/<username>")
 def studentpage(username):
+    if 'user' not in session:
+        flash("Please login first")
+        return redirect(url_for("login"))
     username = username.replace("%20"," ")
     if (username == session['user']):
         return redirect(url_for("schedule"))

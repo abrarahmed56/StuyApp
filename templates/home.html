@@ -5,9 +5,19 @@
 {% endblock navbarl %}
 {% block navbarr %}
 {% if logged %}
-<form class="navbar-form navbar-left" role="search">
+<form class="navbar-form navbar-left" action="/search" method="get">
   <div class="form-group">
-    <input type="text" class="form-control" placeholder="Search">
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown<span class="caret"></span></a>
+      <select class="form-control" name="select">
+        <option value="class">Class</option>
+        <option value="teacher">Teacher</option>
+        <option value="student">Student</option>
+      </select>
+    </li>
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" name="search" placeholder="Search">
   </div>
   <button type="submit" class="btn btn-info">Submit</button>
 </form>

@@ -4,9 +4,19 @@
 <li><a href="#">About</a></li>
 {% endblock navbarl %}
 {% block navbarr %}
-<form class="navbar-form navbar-left" role="search">
+<form class="navbar-form navbar-left" action="/search" method="get">
   <div class="form-group">
-    <input type="text" class="form-control" placeholder="Search">
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown<span class="caret"></span></a>
+      <select class="form-control" name="select">
+        <option value="class">Class</option>
+        <option value="teacher">Teacher</option>
+        <option value="student">Student</option>
+      </select>
+    </li>
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" name="search" placeholder="Search">
   </div>
   <button type="submit" class="btn btn-info">Submit</button>
 </form>
@@ -14,15 +24,6 @@
 <li><a href="/logout">Logout</a></li>
 {% endblock navbarr %}
 {% block bodycontent %}
-
-  <ul class="nav navbar-nav navbar-right">
-      <li><form method="POST">
-	  <input type="hidden" name="user" value={{username}}>
-	  <br>
-	  <input type="submit" name="ex" value="Exclusively for Users"  style="background:none;border:0;color:#FFFFFF"></form></li>
-      <li><a href={{url2}}>{{link2}}</a></li>
-    </ul>
-<br>
 <center>
 <div class="container jumbotron" style="border-radius:30px">
 <h1>Hello {{username}}!</h1>
