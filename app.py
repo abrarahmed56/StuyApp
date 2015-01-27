@@ -26,10 +26,8 @@ def checkFormat(L): #checks the format of user's schedule- class/section/teacher
     if L == "classsectionteacher":
         return "class"
     if L[:5] == "class":
-        #return "unsureclass"
         return "class"
     if L[:-8] == "teacher":
-        #return "unsureclass"
         return "class"
     if L == "pdcodetitle":
         return "pd"
@@ -85,10 +83,6 @@ def schedule():
     print "checkerror"
     for i in x['sch_list']:
         print i
-        '''c = db.classes.find_one({'code': i[:-2], 'ext': i[-2:]})
-        if 'period' in c:
-            periods[c['period']] = i        
-            teachers[c['period']] = c['teacher']'''
 
     print "checkerror2"
     q = db.users.find_one({'name':username})
@@ -217,7 +211,6 @@ def allowed_file(filename):
 
 @app.route("/login",methods=["GET","POST"])
 def login():
-    #db.classes.remove()
     #LOG IN
     if request.method=="POST" and request.form.get("h")!="bleh":
         button = request.form.get("sub",None)
@@ -228,7 +221,6 @@ def login():
         error = None     
         loginfo = { 'name': username, 'pword': passw }
         if (excl != None): 
-            #return exclusive(username2)
             return redirect(url_for('exclusive', user=username2))
         #CHECK IF USERNAME/PASSWORD VALID
         if db.users.find_one ( { 'name' : username , 'pword' : passw } ) != None:
@@ -270,17 +262,10 @@ def loggedin():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             newFileName = username + str(n) + ".jpg"
-            #newFileName = username + ".jpg"
             print "newFileName: " + newFileName
             session['img'] = newFileName
             os.rename("static/"+file.filename, "static/" + newFileName)
-            #img = Image.open("tmp/" + newFileName)
             return redirect(url_for("crop"))
-            #schedule = image_to_string(img)
-            #os.remove("tmp/"+newFileName)
-            #db.users.update({'name':username}, {'$set':{'schedule':schedule}})
-            #return schedule
-            #return render_template("confirmschedule.html", username=username, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
         #CHECK IF TEXT PASTED
         elif request.form.get("txtsched") != "":
             schedule = request.form.get("txtsched")
@@ -295,7 +280,6 @@ def loggedin():
         return redirect(url_for("schedule"))
     #LOGGING IN FOR THE FIRST TIME/LOGGING IN WITHOUT CONFIRMING/UPLOADING SCHEDULE
     else:
-        #db.users.update({'name':username}, {'$set':{'schedule':1}})
         print "render loggedin"
         return render_template("loggedin.html", username=username, n=0,url1="/exclusive",link1="Exclusively for Users",url2="/logout",link2="Logout")
 
@@ -307,7 +291,6 @@ def register():
         username = request.form.get("username", None)
         passw = request.form.get("password", None)
         error = None
-        #db.users.remove()
         if db.users.find_one ( { 'name' : username } ) == None:
             if username == "":
                 flash("Please enter a username")
@@ -316,12 +299,10 @@ def register():
                 flash("Please enter a password")
                 return redirect(url_for('register'))
             db.users.insert ( { 'name': username, 'pword': passw, 'schedule': 0, 'confirmed': 0, 'n': 0} )
-            #return "<h1>Thanks for joining!</h1>" + str ( { 'name':username, 'pword': passw } )
             flash("Thanks for joining! Please log in now.")
             return redirect(url_for('login'))
         else:
             flash("Please select an available username")
-            #return "<h1>Please select an available username</h1>"
             return redirect(url_for('register'))
     return render_template("register.html",url2="/login",link2="Login",url0="/",link0="Home",url1="/about",link1="About")
 
@@ -348,17 +329,11 @@ def confirm():
         print "username obtained"
         sch_list = []
         print "in confirm: " + str(schedule)
-        #for i in schedule.split("\n"):
         print str(range(10))
         print schedule
         usersClasses = []
         for i in range(len(schedule)-1):
             print "i in range" + str(i)
-            #if i != "":
-            #print "schedule[i]: " + schedule[i]
-            #print "sections[i]: " + scheduleSections[i]
-            #sch_list.append(schedule[i]+"00") #00 replaces sections because n/a
-            #db.classes.update( {'code':schedule[i]}, {'code':schedule[i], 
             #CHECK TO SEE IF SOMEONE UPLOADED SCHEDULE WITH SAME CLASS
             q = db.classes.find_one({'code':schedule[i]})
             print "q success: " + str(q)
@@ -384,8 +359,6 @@ def confirm():
                     print "section[i]: " + scheduleSections[i]
                     db.classes.insert({'code':schedule[i], 'teacher':teachers[i], 'sections': {'section'+scheduleSections[i]:[username]}})
                     print "insert successful"
-                #for x in db.classes.find():
-                #print "class: " + str(x)
                 else:
                     print "error in db classes loop"
             else:
@@ -418,21 +391,11 @@ def confirm():
                     for x in db.classes.find({'code':schedule[i]}):
                         print str(x)
                     print "q exists, class"
-            #if db.classes.update({'code':schedule[i]}, {'$set': {
-            '''db.classes.update(
-                {'code':schedule[i], 'ext':"00", 'teacher':teachers[i]},#00 replaces scheduleSections[i] bc n/a
-                {'$addToSet': {'students':username}}, 
-                True)'''
             print "end of iteration"
         print usersClasses
         db.users.update({'name':username}, {'$set': {'schedule':usersClasses}})
         print str(db.users.find_one({'name':username}))
         print "for loop successfully ended"
-        '''db.users.update({'name':username}, {'$set': {
-            'schedule':schedule,
-            'sch_list':sch_list,
-            'confirmed':1}})
-        '''
         for i in db.classes.find({'code':'ZLN5'}):
             i['period'] = int(i['ext']) + 3
             db.classes.save(i)
@@ -451,8 +414,6 @@ def confirm():
             return "error"
     username = session['user']
     schedule = session['sched']
-    #q = db.users.find_one({'name':username})
-    #schedule = q['sch_list']
     print "render in confirm: " + schedule
     print "end schedule"
     scheduleCodes = []
@@ -460,10 +421,8 @@ def confirm():
     scheduleSections = []
     scheduleTeachers = []
     scheduleTitles = []
-    #if ''.join(schedule.split("\n")[0].split()) == "ClassSectionTeacher":
     formatOfFile = checkFormat(schedule.split("\n")[0])
     print "format: " + formatOfFile
-    #if formatOfFile[:-5] == "class":
     if formatOfFile == "class":
         print "format == class"
         for s in schedule.split("\n")[1:]:
@@ -505,11 +464,7 @@ def confirm():
         print "sc: " + sc
         print "render confirm"
         return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers=st, scheduleSections=ss, scheduleCodes=sc, scheduleTitles='null', username=username, f='class')
-        #return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers='null', scheduleSections='null', scheduleCodes='null', scheduleTitles='null', username=username)
-
-        #return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers=''.join(scheduleTeachers), scheduleSections=''.join(scheduleSections), scheduleCodes=''.join(scheduleCodes), username=username)
     elif formatOfFile == "pd":
-        #elif ''.join(schedule.split("\n")[0].split()) == "PdCodeTitle":
         print "format === pd"
         print "sched: " + str(schedule)
         print "pd code title"
@@ -553,10 +508,6 @@ def confirm():
         return "cropping failed, please try manual input"
     print "render confirm, shouldnt be here"
     return render_template("confirmschedule.html", schedulePeriods='null', scheduleTeachers='null', scheduleSections='null', scheduleCodes='null', username=username)
-    #db.users.update({'name':username}, {'$set':{'confirmed':1}})
-    #return redirect(url_for('analyzeSchedule',username=username, schedule=schedule))
-    #else:
-    #return "dont enter this url"
 
 @app.route("/analyzeSchedule/<username>/<schedule>", methods=["GET", "POST"])
 def analyzeSchedule(username, schedule):
@@ -597,10 +548,7 @@ def crop():
         session['sched']=schedule
         print "image posted: " + schedule
         return redirect(url_for("confirm"))
-        #return schedule
-        #return url
     else:
-        #return "hello"
         print "before crop: " + newFileName
         return render_template("crop.html", img=newFileName)
 
@@ -621,12 +569,6 @@ def enter():
         h = "h=" + request.form.get("h")
         url = url + x + "&" + y + "&" + w + "&" + h + "&submit=submit"
         r = urllib2.urlopen(url)
-        #print "r: " + str(r)
-        #result = r.read()
-        #print "result: " + str(result)
-        #print d
-        #return url
-        #return app.send_static_file('crop.php')
     else:
         ###Screenshotting works if you zoom in to make your schedule fit the entire window
         img = Image.open("blah/scheduleforfinalproject.jpg")
@@ -650,7 +592,6 @@ ZQT 01 SPORTS TEAM"""
                 s += x
         wordsList.append(s)
         eachLine = []
-        #for word in wordsList:
         i = len (wordsList) - 1
         numIndeces = []
         while i >= 0:
@@ -662,7 +603,6 @@ ZQT 01 SPORTS TEAM"""
             except:
                 print word + "not number"
             i = i - 1
-        #for k in range 
         tempList = []
         tempList.append(wordsList[numIndeces[0]-1])
         tempList.append(wordsList[numIndeces[0]])
@@ -678,11 +618,9 @@ ZQT 01 SPORTS TEAM"""
         j = 1
         allClasses = []
         while j < len(numIndeces):
-            #print wordsList[numIndeces[j]]
             tempList = []
             tempList.append(wordsList[numIndeces[j]-1])
             tempList.append(wordsList[numIndeces[j]])
-            #print tempList
             s = ""
             for k in range (numIndeces[j]+1, numIndeces[j-1]-1):
                 s = s + wordsList[k] + " "
@@ -690,33 +628,15 @@ ZQT 01 SPORTS TEAM"""
             print tempList
             allClasses.append(tempList)
             print wordsList[numIndeces[j-1]-1]
-            #print str(numIndeces[j]) + " " + str(numIndeces[j-1])
-            '''for k in range(numIndeces[j], numIndeces[j-1]-1):
-                print "k: " + wordsList[k]'''
-            #tempList.append(wordsList[numIndeces[k]])
-            #tempList.append(s)
             j = j + 1
         db.students.insert({'name':'adduserlater', 'id':1847, 'classes': allClasses})
         print allClasses
         for x in db.students.find():
             print x
-        #db.students.remove()
-        """
-        classes = ["EE", "HE", "HL", "HV", "MQ"]
-        sections = [ "02", "04", "01", "06", "01" ]
-        teachers = ["Schechter", "McroyMendell", "Weissman", "Trainor", "Brooks"]
-        db.classes.insert({'student name': 'Blah'})"""
-        #return str(wordsList)
-        #return image_to_string(img)
-        #return "hello"
-        #return render_template("crop.html",img=usr+".jpg")
         return render_template("test.html", src='../static/a1.jpg')
 
 if __name__== "__main__":
-    #db.users.remove()
-    #db.classes.remove()
     db.users.insert({'name':'b','pword':'b'})
-    #db.classes.insert({'code':'ZLN5','ext':'03','students':[],'teacher':'MESSE TARVIN','period':6})
 
     for i in db.users.find():
         print i
