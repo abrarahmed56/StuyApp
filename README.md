@@ -1,8 +1,9 @@
 # StuyApp
 Did you ever want to use an app to see who's in your classes, instead of putting up your schedule on facebook? Well now you can! With StuyApp, simply copy and paste your schedule, or upload a screenshot, and you can view the people in your class who have also signed up.
 
-
--we may make it so that you can just link your facebook to the app, if you've already posted your schedule online
+Website available at stuyapp.jaaax.com thanks to freeDNS.org
+If you are forking or privately testing this program, make sure to run a mongo server and have port 5555 open.
+If, for any reason, app.py crashes, run app2.py which is a more stable version with less features.
 
 *Note: ssh root@104.236.74.79  
        website redirects from port 3000
