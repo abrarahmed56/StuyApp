@@ -66,6 +66,7 @@ def schedule():
     if request.method == "POST":
         print "schedule method = post"
         db.users.update({"name":username},{'$set':{'confirmed':0}})
+        #remove name from classes
         return redirect(url_for("loggedin"))
     print "schedule"
     x = db.users.find_one({'name':username})
@@ -73,7 +74,6 @@ def schedule():
     #for i in db.classes.find():
     #print i
     print "schedule2"
-
     if (x == None or 'sch_list' not in x.keys()):
         flash("Please add your schedule")
         print x.keys()
@@ -91,7 +91,35 @@ def schedule():
             teachers[c['period']] = c['teacher']'''
 
     print "checkerror2"
-    return render_template("schedule.html", L = list(set(x['sch_list'])), D = periods, T = teachers)
+    q = db.users.find_one({'name':username})
+    print str(q)
+    schedule = q['schedule']
+    titles = []
+    periods = []
+    sections = []
+    teachers = []
+    print range(len(schedule))
+    for i in range(len(schedule)):
+        print 'i in schedule: ' + str(i)
+        qu = db.classes.find_one({'code':schedule[i]})
+        print "q: " + str(q)
+        if 'title' in qu:
+            print 'title in q'
+            title = qu['title']
+            titles.append(title)
+        if 'teacher' in qu:
+            print 'teacher in q'
+            teacher = qu['teacher']
+            teachers.append(teacher)
+        print 'title/teacher done'
+        que = qu['sections']
+        for pdorsection in que:
+            period = que[pdorsection]
+            if username in period:
+                periods.append(period)
+                break;
+    print str(q)
+    return render_template("schedule.html", L = list(set(x['sch_list'])), D = periods, T = teachers, col1="Code", col2="Class", col3="Teacher", col4="Section", col5="Period", schedule=schedule)
 
 @app.route("/class/<code>")
 def classpage(code):
@@ -299,6 +327,7 @@ def confirm():
         #for i in schedule.split("\n"):
         print str(range(10))
         print schedule
+        usersClasses = []
         for i in range(len(schedule)-1):
             print "i in range" + str(i)
             #if i != "":
@@ -309,6 +338,7 @@ def confirm():
             #CHECK TO SEE IF SOMEONE UPLOADED SCHEDULE WITH SAME CLASS
             q = db.classes.find_one({'code':schedule[i]})
             print "q success: " + str(q)
+            usersClasses.append(schedule[i])
             print q == None
             for x in db.classes.find():
                 print x['code']
@@ -321,14 +351,14 @@ def confirm():
                     print "sched[i]: " + schedule[i]
                     print "title[i]: " + titles[i]
                     print "pd[i]: " + periods[i]
-                    db.classes.insert({'code':schedule[i], 'title':titles[i], 'sections': {periods[i]:[username]}})
+                    db.classes.insert({'code':schedule[i], 'title':titles[i], 'sections': {'pd'+periods[i]:[username]}})
                     print "insert successful"
                 elif f == "class":
                     print "q class"
                     print "sched[i]: " + schedule[i]
                     print "teacher[i]: " + teachers[i]
                     print "section[i]: " + scheduleSections[i]
-                    db.classes.insert({'code':schedule[i], 'teacher':teachers[i], 'sections': {scheduleSections[i]:[username]}})
+                    db.classes.insert({'code':schedule[i], 'teacher':teachers[i], 'sections': {'section'+scheduleSections[i]:[username]}})
                     print "insert successful"
                 #for x in db.classes.find():
                 #print "class: " + str(x)
@@ -341,19 +371,19 @@ def confirm():
                     qPeriods = q['sections']
                     print "qPeriods: " + str(qPeriods)
                     print str(periods[i])
-                    if periods[i] in qPeriods.keys():
-                        usersInQPeriods = qPeriods[periods[i]]
+                    if "pd"+periods[i] in qPeriods.keys():
+                        usersInQPeriods = qPeriods["pd"+periods[i]]
                         usersInQPeriods.append(username)
                     else:
-                        qPeriods[periods[i]] = [username]
+                        qPeriods["pd"+periods[i]] = [username]
                     db.classes.update({'code':schedule[i]}, {'$set': {'sections': qPeriods}})
                 elif f == "class":
                     print "sections: " + str(q['sections'])
                     qSections = q['sections']
                     print "qSections: " + str(qSections)
                     print str(scheduleSections[i])
-                    if scheduleSections[i] in qSections.keys():
-                        usersInQSections = qSections[scheduleSections[i]]
+                    if "section"+scheduleSections[i] in qSections.keys():
+                        usersInQSections = qSections["section"+scheduleSections[i]]
                         print "users in section: " + str(usersInQSections)
                         usersInQSections.append(username)
                         print str(qSections)
@@ -369,14 +399,16 @@ def confirm():
                 {'code':schedule[i], 'ext':"00", 'teacher':teachers[i]},#00 replaces scheduleSections[i] bc n/a
                 {'$addToSet': {'students':username}}, 
                 True)'''
-        print "end of iteration"
-
+            print "end of iteration"
+        print usersClasses
+        db.users.update({'name':username}, {'$set': {'schedule':usersClasses}})
+        print str(db.users.find_one({'name':username}))
         print "for loop successfully ended"
-        db.users.update({'name':username}, {'$set': {
+        '''db.users.update({'name':username}, {'$set': {
             'schedule':schedule,
             'sch_list':sch_list,
             'confirmed':1}})
-
+        '''
         for i in db.classes.find({'code':'ZLN5'}):
             i['period'] = int(i['ext']) + 3
             db.classes.save(i)
