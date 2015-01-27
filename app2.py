@@ -84,7 +84,7 @@ def classpage(code):
         period = "Unknown"
     teacher = x['teacher']
 
-    return render_template("class.html", code=code, similar = similar, students = students, period = period, teacher = teacher)
+    return render_template("class2.html", code=code, similar = similar, students = students, period = period, teacher = teacher)
 
 @app.route("/teacher/<teacher>")
 def teacherpage(teacher):
@@ -106,7 +106,7 @@ def teacherpage(teacher):
         if 'period' in i:
             periods[i['period']] = i['code']+i['ext']        
     
-    return render_template("teacher.html", teacher = teacher.title(), L = list(set(classes)), D = periods)
+    return render_template("teacher2.html", teacher = teacher.title(), L = list(set(classes)), D = periods)
 
 @app.route("/student/<username>")
 def studentpage(username):

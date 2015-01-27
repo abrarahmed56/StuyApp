@@ -25,36 +25,20 @@
 {% endblock navbarr %}
 {% block bodycontent %}
 <div class="container jumbotron" style="border-radius:30px">
-  Your Schedule: <br>
-  <div class="row">
-    <div class="col-md-5">
-      <div class="row">
-	<div class="col-md-2">Period</div>
-	<div class="col-md-2">Class</div>
-	<div class="col-md-6">Teacher</div>
-      </div>
-      {% for i in range(10) %}
-      <div class="row">
-	<div class="col-md-2">{{i+1}}</div>
-	<div class="col-md-2"><a href="/class/{{D[i+1]}}">{{D[i+1]}}</a></div>
-	<div class="col-md-6"><a href="/teacher/{{T[i+1]}}">{{T[i+1]}}</a></div>
-      </div>
-      {% endfor %}
-    </div>
-    <div class="col-md-5">
-      All Classes: <br>
-      <div class="row">
-	<div class="col-md-3">Class</div>
-	<div class="col-md-6">Teacher</div>
-      </div>
-      {% for i in range(10) %}
-      <div class="row">
-	<div class="col-md-3"> <a href="/class/{{L[i]}}">{{L[i]}}</a> </div>
-	<div class="col-md-6"> <a href="/teacher/{{T2[i]}}">{{T2[i]}}</a></div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>  
+  <h2> Class: {{code}} </h1>
+  <h2> <a href="/teacher/{{teacher}}">Teacher: {{teacher}}</a> </h1>
+  <h3> Period: {{period}} </h2>
+  Similar Classes: <br>
+  {% for i in similar %}
+  <a href="/class/{{code[:-2]+i}}"> {{code[:-2]+i}} </a> <br>
+  {% endfor %}
+  <br>
+  Students: <br>
+  <ul>
+    {% for i in students %}
+    <li><a href="/student/{{i}}">{{i}}</a></li>
+    {% endfor %}
+  </ul>
 </div>
 {% endblock bodycontent %}
 </html>
