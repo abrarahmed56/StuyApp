@@ -1,28 +1,28 @@
 {% extends "base.html" %}
+{% block navbarl %}
+<li><a href="/">Home</a></li>
+<li class="active"><a href="#">About</a></li>
+{% endblock navbarl %}
+{% block navbarr %}
+{% if logged %}
+<form class="navbar-form navbar-left" role="search">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Search">
+  </div>
+  <button type="submit" class="btn btn-info">Submit</button>
+</form>
+<li><a href="/schedule">Schedule</a></li>
+<li><a href="/logout">Logout</a></li>
+{% else %}
+<li><a href="/login">Login</a></li>
+<li><a href="/register">Register</a></li>
+{% endif %}
+{% endblock navbarr %}
 {% block bodycontent %}
 
- 
 <div class="container jumbotron" style="border-radius:30px">
 
-<center> <h1>A Little About This</h1></center>
-<center> 
-  <li>This is a <strike>basic</strike> <b>minimalist</b> account manager.</li>
-  <li>Anyone can see this about page. If you want to feel special, please <a href="/register">register</a> or <a href="/login">sign in</a></li> 
-
-
-<h1>A Little About Us</h1>
-  <li>The name comes from our intials. AA for <b>A</b>brar <b>A</b>hmed and EZ for <b>E</b>lise <b>Z</b>lotnikova</li>
-  <li>We basically have the coolest initials, making us an awesome team</li>
-</ul>
-
-<br>
-<br>
-
-
-<h10>Find us on <a href="https://github.com/stuycs-softdev/submissions/tree/master/5/login/abrar_elise">Github</a></h10>
-
+  <center> <h1>About Page</h1></center>
 
 </div>
-
-
 {% endblock bodycontent %}

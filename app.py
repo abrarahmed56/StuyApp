@@ -48,7 +48,11 @@ def allowed_file(filename):
 
 @app.route("/")
 def home(): 
-    return render_template("home.html",url1="/login",link1="Login",url2="/register",link2="Register",url0="/about",link0="About")
+    return render_template("home.html", logged = 'user' in session)
+
+@app.route("/about")
+def about():
+    return render_template("about.html", logged = 'user' in session)
 
 @app.route("/schedule", methods=["GET", "POST"])
 def schedule():
@@ -75,7 +79,7 @@ def schedule():
     if (x == None or 'sch_list' not in x.keys()):
         flash("Please add your schedule")
         print x.keys()
-        return redirect("/")
+        return redirect(url_for("loggedin"))
 
     periods = {}
     teachers = {}
@@ -190,7 +194,7 @@ def studentpage(username):
         print i
 
     if (x == None or 'sch_list' not in x.keys()):
-        flash("Please add your schedule")
+        flash("Student does not exist")
         return redirect("/")
 
     periods = {}
@@ -227,12 +231,18 @@ def login():
 	    for x in db.users.find({'name': username,'pword':passw}):
 	        print "bleh" + str(db.users.find({'name':username,'pword':passw}))
             session['user']=username
-            return redirect(url_for("loggedin"))
+
+            x = db.users.find_one({'name':username})
+            if (x == None or 'sch_list' not in x.keys()):
+                flash("Please add your schedule")
+                return redirect(url_for("loggedin"))
+            else:
+                return redirect(url_for("schedule"))
         #INCORRECT LOGIN INFO
         else:
             flash("incorrect login info")
             return redirect(url_for('login'))
-    return render_template("login.html",url2="/",link2="Home",url1="/register",link1="Register")
+    return render_template("login.html")
 
 @app.route("/loggedin", methods=["GET", "POST"])
 def loggedin():
@@ -281,7 +291,7 @@ def loggedin():
     #LOGGING IN FOR THE FIRST TIME/LOGGING IN WITHOUT CONFIRMING/UPLOADING SCHEDULE
     else:
         print "render loggedin"
-        return render_template("loggedin.html", username=username, n=0,url1="/exclusive",link1="Exclusively for Users",url2="/logout",link2="Logout")
+        return render_template("loggedin.html", username=username, n=0)
 
 
 @app.route("/register",methods=["GET","POST"])
@@ -304,7 +314,7 @@ def register():
         else:
             flash("Please select an available username")
             return redirect(url_for('register'))
-    return render_template("register.html",url2="/login",link2="Login",url0="/",link0="Home",url1="/about",link1="About")
+    return render_template("register.html")
 
 @app.route("/confirm", methods=["GET", "POST"])
 def confirm():
@@ -511,7 +521,7 @@ def confirm():
 
 @app.route("/analyzeSchedule/<username>/<schedule>", methods=["GET", "POST"])
 def analyzeSchedule(username, schedule):
-    return render_template("loggedinwithschedule.html", username=username, n=0, url1="/exclusive", link1="Exclusively for Users", url2="/logout", link2="Logout", schedule=schedule)
+    return render_template("loggedinwithschedule.html", username=username, n=0, schedule=schedule)
 
 @app.route("/logout")
 def logout():

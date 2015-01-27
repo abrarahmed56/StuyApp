@@ -1,30 +1,25 @@
-<title>StuyApp</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.2.0/flatly/bootstrap.min.css">
-</head>
-<div class="navbar navbar-default">
-  <div class="navbar-header">
-    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
+{% extends "base.html" %}
+{% block navbarl %}
+<li><a href="/">Home</a></li>
+<li><a href="#">About</a></li>
+{% endblock navbarl %}
+{% block navbarr %}
+<form class="navbar-form navbar-left" role="search">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Search">
   </div>
-  <ul class="nav navbar-nav navbar-right">
-      <li><form method="POST">
-	  <input type="hidden" name="user" value={{username}}>
-	  <br>
-	  <input type="submit" name="ex" value="Exclusively for Users"  style="background:none;border:0;color:#FFFFFF"></form></li>
-      <li><a href={{url2}}>{{link2}}</a></li>
-    </ul>
-  </div>
-</div>
-<br>
+  <button type="submit" class="btn btn-info">Submit</button>
+</form>
+<li class="active"><a href="/schedule">Schedule</a></li>
+<li><a href="/logout">Logout</a></li>
+{% endblock navbarr %}
+{% block bodycontent %}
 <div class="container jumbotron" style="border-radius:30px">
   Your Schedule: <br>
   <div class="row">
     <div class="col-md-1">{{col1}}</div>
     <div class="col-md-1">{{col2}}</div>
-    <div class="col-md-1">{{col3}}</div>
+    <div class="col-md-2">{{col3}}</div>
     <div class="col-md-1">{{col4}}</div>
     <div class="col-md-1">{{col5}}</div>
   </div>
@@ -32,7 +27,7 @@
   <div class="row">
     <div class="col-md-1">{{schedule[i+1]}}</div>
     <div class="col-md-1"><a href="/class/{{D[i+1]}}">{{D[i+1]}}</a></div>
-    <div class="col-md-1"><a href="/teacher/{{T[i+1]}}">{{T[i+1]}}</a></div>
+    <div class="col-md-2"><a href="/teacher/{{T[i+1]}}">{{T[i+1]}}</a></div>
   </div>
   {% endfor %}
   {{schedule}}
@@ -48,4 +43,5 @@
     {% endfor %}
   </ul>
 </div>
+{% endblock bodycontent %}
 </html>

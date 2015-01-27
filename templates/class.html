@@ -1,3 +1,19 @@
+{% extends "base.html" %}
+{% block navbarl %}
+<li><a href="/">Home</a></li>
+<li><a href="#">About</a></li>
+{% endblock navbarl %}
+{% block navbarr %}
+<form class="navbar-form navbar-left" role="search">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Search">
+  </div>
+  <button type="submit" class="btn btn-info">Submit</button>
+</form>
+<li class="active"><a href="/schedule">Schedule</a></li>
+<li><a href="/logout">Logout</a></li>
+{% endblock navbarr %}
+{% block bodycontent %}
 <h1> {{code}} </h1>
 <h1> <a href="/teacher/{{teacher}}">{{teacher}}</a> </h1>
 <h2> Period: {{period}} </h2>
@@ -12,3 +28,4 @@ Students: <br>
   <li><a href="/student/{{i}}">{{i}}</a></li>
   {% endfor %}
 </ul>
+{% endblock bodycontent %}

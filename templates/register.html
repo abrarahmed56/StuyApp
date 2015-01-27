@@ -1,5 +1,12 @@
-
 {% extends "base.html" %}
+{% block navbarl %}
+<li><a href="#">Home</a></li>
+<li><a href="/about">About</a></li>
+{% endblock navbarl %}
+{% block navbarr %}
+<li><a href="/login">Login</a></li>
+<li class="active"><a href="/register">Register</a></li>
+{% endblock navbarr %}
 {% block bodycontent %}
 
 <div class="container jumbotron" style="border-radius:30px">

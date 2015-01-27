@@ -1,4 +1,18 @@
 {% extends "base.html" %}
+{% block navbarl %}
+<li><a href="/">Home</a></li>
+<li><a href="#">About</a></li>
+{% endblock navbarl %}
+{% block navbarr %}
+<form class="navbar-form navbar-left" role="search">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Search">
+  </div>
+  <button type="submit" class="btn btn-info">Submit</button>
+</form>
+<li><a href="/schedule">Schedule</a></li>
+<li><a href="/logout">Logout</a></li>
+{% endblock navbarr %}
 {% block bodycontent %}
 
   <ul class="nav navbar-nav navbar-right">

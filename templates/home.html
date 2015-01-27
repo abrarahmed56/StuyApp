@@ -1,16 +1,29 @@
 {% extends "base.html" %}
+{% block navbarl %}
+<li class="active"><a href="#">Home</a></li>
+<li><a href="/about">About</a></li>
+{% endblock navbarl %}
+{% block navbarr %}
+{% if logged %}
+<form class="navbar-form navbar-left" role="search">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Search">
+  </div>
+  <button type="submit" class="btn btn-info">Submit</button>
+</form>
+<li><a href="/schedule">Schedule</a></li>
+<li><a href="/logout">Logout</a></li>
+{% else %}
+<li><a href="/login">Login</a></li>
+<li><a href="/register">Register</a></li>
+{% endif %}
+{% endblock navbarr %}
 {% block bodycontent %}
 
- 
 <div class="container jumbotron" style="border-radius:30px">
-
-<center> <h1>Welcome to StuyApp!</h1>
-<img src="http://www.dirtmodeler.com/wp-content/uploads/2012/11/easy_button.png" alt="EZ">
-<br>
-<h10>Find us on <a href="https://github.com/abrarahmed56/StuyApp">Github</a></h10>
-
-
+  <center> <h1>Welcome to StuyApp!</h1>
+    <img src="http://www.dirtmodeler.com/wp-content/uploads/2012/11/easy_button.png" alt="EZ">
+    <br>
+    <h10>Find us on <a href="https://github.com/abrarahmed56/StuyApp">Github</a></h10>
 </div>
-
-
 {% endblock bodycontent %}
