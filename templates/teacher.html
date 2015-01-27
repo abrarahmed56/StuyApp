@@ -29,13 +29,13 @@
   <div class="row">
     <div class="col-md-5">
       <div class="row">
-	<div class="col-md-2">Period</div>
+	<div class="col-md-2">Period/Section</div>
 	<div class="col-md-2">Class</div>
       </div>
-      {% for i in range(10) %}
+      {% for key in classes %}
       <div class="row">
-	<div class="col-md-2">{{i+1}}</div>
-	<div class="col-md-2"><a href="/class/{{D[i+1]}}">{{D[i+1]}}</a></div>
+	<div class="col-md-2">{{key}}</div>
+	<div class="col-md-2"><a href="/class/{{classes[key]}}">{{classes[key]}}</a></div>
       </div>
       {% endfor %}
     </div>

@@ -141,7 +141,7 @@ def schedule():
     print "titles: " + str(titles)
     print "sections: " + str(sections)
     print "periods: " + str(periods)
-    return render_template("schedule.html", L = list(set(x['sch_list'])), D = periods, T = teachers, col1="Code", col2="Class", col3="Teacher", col4="Section", col5="Period", schedule=schedule)
+    return render_template("schedule2.html", L = schedule, D = schedule, T = teachers, titles=titles, periods=periods, teachers=teachers, sections=sections, col1="Code", col2="Class", col3="Teacher", col4="Section", col5="Period", schedule=schedule)
 
 @app.route("/class/<code>")
 def classpage(code):
@@ -149,23 +149,36 @@ def classpage(code):
         flash("Please login first")
         return redirect(url_for("login"))
     code = code.replace("%20"," ")
-    x = db.classes.find_one({'code':code[:-2],'ext': code[-2:]})
-    y = db.classes.find({'code':code[:-2]})
-
-    if (x == None):
-        return "This class does not exist"
-
+    q = db.classes.find_one({'code':code+"\r"})
+    #y = db.classes.find({'code':code[:-2]})
+    for x in db.classes.find():
+        print "x"
+        print x['code']
+    print "code: " + code
+    print "q: " + str(q)
+    classList = q['sections']
+    print "classList: " + str(classList)
+    studentsInClass = {}
+    for x in classList:
+        print "element in classlist: " + x
+        print "class[x]" + str(classList[x])
+        studentsInClass[x]=classList[x]
+        print studentsInClass
+    teacher = q['teacher']
+    #if (x == None):
+    #return "This class does not exist"
+    
     similar = []
-    for i in y:
-        similar.append(i['ext'])
-    students = x['students']
-    if 'period' in x:
-        period = x['period']
-    else:
-        period = "Unknown"
-    teacher = x['teacher']
+    #for i in y:
+    #similar.append(i['ext'])
+    #students = x['students']
+    #if 'period' in x:
+    #    period = x['period']
+    #else:
+    #    period = "Unknown"
+    #teacher = x['teacher']
 
-    return render_template("class.html", code=code, similar = y, students = students, period = period, teacher = teacher)
+    return render_template("class.html", code=code, similar = [], students = studentsInClass, teacher = teacher)
 
 @app.route("/teacher/<teacher>")
 def teacherpage(teacher):
@@ -173,21 +186,33 @@ def teacherpage(teacher):
         flash("Please login first")
         return redirect(url_for("login"))
     teacher = teacher.replace("%20"," ")
-    x = db.classes.find({'teacher':teacher})
+    x = db.classes.find({'teacher':teacher+'\r'})
     classes = []
-    
     if (x == None):
         flash("This teacher has no classes")
         return redirect("/")
-
+    teachersClasses = {}
+    for y in x:
+        print "teacher document: " + str(y)
+        code = y['code']
+        print "code: " + code
+        sections = y['sections']
+        print "sections: " + str(sections)
+        for section in sections:
+            teachersClasses[section]=code
+            print "section: " + str(section)
+    print "teacher's classes: " + str(teachersClasses)
     periods = {}
-
+    print "ok till here"
     for i in x:
-        classes.append(i['code']+i['ext'])
-        if 'period' in i:
-            periods[c['period']] = i        
-    
-    return render_template("teacher.html", teacher = teacher.title(), L = list(set(classes)), D = periods)
+        print "i"
+        code = i['code']
+        print "teacher code: " + str(code)
+        #classes.append(i['code']+i['ext'])
+        #if 'period' in i:
+        #periods[c['period']] = i        
+    print "end for in teacher"
+    return render_template("teacher.html", classes=teachersClasses, teacher = teacher.title(), L = list(set(classes)), D = periods)
 
 @app.route("/student/<username>")
 def studentpage(username):
@@ -224,6 +249,8 @@ def allowed_file(filename):
 
 @app.route("/login",methods=["GET","POST"])
 def login():
+    db.users.update({},{'$set':{'confirmed':0}})
+    db.classes.remove()
     #LOG IN
     if request.method=="POST" and request.form.get("h")!="bleh":
         button = request.form.get("sub",None)
@@ -241,8 +268,8 @@ def login():
 	        print "bleh" + str(db.users.find({'name':username,'pword':passw}))
             session['user']=username
 
-            x = db.users.find_one({'name':username})
-            if (x == None or 'sch_list' not in x.keys()):
+            x = db.users.find_one({'name':username, 'confirmed':1})
+            if (x == None):
                 flash("Please add your schedule")
                 return redirect(url_for("loggedin"))
             else:
@@ -358,10 +385,6 @@ def confirm():
             print "q success: " + str(q)
             usersClasses.append(schedule[i])
             print q == None
-            for x in db.classes.find():
-                print x['code']
-                print x['code']==schedule[i]
-                print "bool" + str(db.classes.find_one({'code':schedule[i]})==None)
             if q == None:
                 print "q == none"
                 if f == "pd":

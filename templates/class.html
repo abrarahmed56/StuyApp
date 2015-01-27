@@ -28,15 +28,21 @@
   <h2> Class: {{code}} </h1>
   <h2> <a href="/teacher/{{teacher}}">Teacher: {{teacher}}</a> </h1>
   <h3> Period: {{period}} </h2>
-  Similar Classes: <br>
+  <!--Similar Classes: <br>
   {% for i in similar %}
   <a href="/class/{{code[:-2]+i}}"> {{code[:-2]+i}} </a> <br>
   {% endfor %}
-  <br>
-  Students: <br>
+  <br>-->
+  Sections: <br>
   <ul>
     {% for i in students %}
-    <li><a href="/student/{{i}}">{{i}}</a></li>
+    <li>{{i}}:</li>
+    <ul>
+      {% for j in students[i] %}
+      <li>{{j}}</li>
+      {% endfor %}
+    </ul>
+    <!--<li><a href="/student/{{i}}">{{i}}</a></li>-->
     {% endfor %}
   </ul>
 </div>
