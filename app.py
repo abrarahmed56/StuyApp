@@ -102,23 +102,47 @@ def schedule():
     for i in range(len(schedule)):
         print 'i in schedule: ' + str(i)
         qu = db.classes.find_one({'code':schedule[i]})
-        print "q: " + str(q)
+        print "q: " + str(qu)
         if 'title' in qu:
-            print 'title in q'
             title = qu['title']
+            print 'title in qu: ' + title
             titles.append(title)
+        else:
+            titles.append("")
         if 'teacher' in qu:
-            print 'teacher in q'
             teacher = qu['teacher']
+            print 'teacher in q: ' + teacher
             teachers.append(teacher)
+        else:
+            teachers.append("")
         print 'title/teacher done'
         que = qu['sections']
         for pdorsection in que:
-            period = que[pdorsection]
-            if username in period:
-                periods.append(period)
-                break;
+            print "period or section: " + pdorsection
+            if pdorsection[:2]=="pd":
+                period = que[pdorsection]
+                print "people in pd: " + str(period)
+                if username in period:
+                    periods.append(pdorsection)
+                    sections.append("")
+                else:
+                    periods.append("")
+            else:
+                section = que[pdorsection]
+                print "people in section: " + str(section)
+                if username in section:
+                    print "usr in period"
+                    sections.append(pdorsection)
+                    periods.append("")
+                else:
+                    print "else"
+                    periods.append("")
     print str(q)
+    print "codes: " + str(schedule)
+    print "teachers: " + str(teachers)
+    print "titles: " + str(titles)
+    print "sections: " + str(sections)
+    print "periods: " + str(periods)
     return render_template("schedule.html", L = list(set(x['sch_list'])), D = periods, T = teachers, col1="Code", col2="Class", col3="Teacher", col4="Section", col5="Period", schedule=schedule)
 
 @app.route("/class/<code>")
