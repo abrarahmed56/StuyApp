@@ -11,3 +11,6 @@ If, for any reason, app.py crashes, run app2.py which is a more stable version w
 *Note: ssh root@104.236.74.79  
        website redirects from port 3000
 
+Video:
+https://www.youtube.com/watch?v=Bmh6iZc5drs&feature=youtu.be&hd=1 (3:50, with audio explaining everything)
+https://www.youtube.com/watch?v=ClNMatv4iaw&feature=youtu.be (2:50, no audio)
