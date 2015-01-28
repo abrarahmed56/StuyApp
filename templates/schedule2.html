@@ -29,32 +29,29 @@
   <div class="row">
     <div class="col-md-5">
       <div class="row">
-	<div class="col-md-2">Period</div>
-	<div class="col-md-2">Class</div>
-	<div class="col-md-6">Teacher</div>
-      </div>
-      {% for i in range(10) %}
-      <div class="row">
-	<div class="col-md-2">{{i}}</div>
-	<div class="col-md-2"><a href="/class/{{D[i]}}">{{D[i]}}</a></div>
-	<div class="col-md-6"><a href="/teacher/{{T[i]}}">{{T[i]}}</a></div>
-      </div>
-      {% endfor %}
-    </div>
-    <div class="col-md-5">
-      All Classes: <br>
-      <div class="row">
+	<div class="col-md-2">Code</div>
 	<div class="col-md-3">Class</div>
-	<div class="col-md-6">Teacher</div>
+	<div class="col-md-3">Teacher</div>
+	<div class="col-md-2">Period</div>
+	<div class="col-md-2">Section</div>
       </div>
       {% for i in range(10) %}
       <div class="row">
-	<div class="col-md-3"> <a href="/class/{{L[i]}}">{{L[i]}}</a> </div>
-	<div class="col-md-6"> <a href="/teacher/{{teachers[i]}}">{{T2[i]}}</a></div>
+	<div class="col-md-2">{{schedule[i]}}</div>
+	<div class="col-md-3"><a href="/class/{{D[i]}}">{{titles[i]|replace('\r','')}}</a></div>
+	<div class="col-md-3"><a href="/teacher/{{T[i]|replace('\r','')}}">{{T[i]|replace('\r','')}}</a></div>
+	<div class="col-md-2">{{periods[i]|replace('\r','')}}</div>
+	<div class="col-md-2">{{sections[i]|replace('\r','')}}</div>
       </div>
       {% endfor %}
+  </div>
+</div>
     </div>
   </div>  
+<form method="POST">
+<input type="submit" name="new" value="Upload new Schedule"></submit>
+<input type="submit" name="other" value="Upload other format"></submit>
+</form>
 </div>
 {% endblock bodycontent %}
 </html>

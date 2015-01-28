@@ -29,23 +29,33 @@
   <div class="row">
     <div class="col-md-5">
       <div class="row">
-	<div class="col-md-3">Period/Section</div>
-	<div class="col-md-2">Class</div>
+	<div class="col-md-3">Section</div>
+	<div class="col-md-2">Code</div>
+	<div class="col-md-4">Students</div>
       </div>
-      {% for key in classes %}
+      {% set i = 0 %}
+      {% for class in classes %}
+      {% set i = i+1 %}
       <div class="row">
-	<div class="col-md-3">{{key}}</div>
-	<div class="col-md-2"><a href="/class/{{classes[key]}}">{{classes[key]}}</a></div>
+	<div class="col-md-3">{{class}}</div>
+	<div class="col-md-2">{{class}}</div>	
+	<div class="col-md-4">
+	{% set users = "" %}
+	{% for student in classes[class] %}
+	<a href="/{{student}}">{{student}}</a>
+	<br>
+	{% endfor %}
+	<form method="POST">
+	<div class="col-md-3">
+	  <input type="hidden" name="requested" value={{class}}></input>
+	  <input type="hidden" name="index" value={{i}}</input>
+	  <input type="submit" value="Request Section"></submit>
+	</form>
+	</div>
       </div>
       {% endfor %}
     </div>
     <div class="col-md-5">
-      All Classes: <br>
-      {% for i in range(10) %}
-      <div class="row">
-	<div class="col-md-3"> <a href="/class/{{L[i]}}">{{L[i]}}</a> </div>
-      </div>
-      {% endfor %}
     </div>
   </div>  
 </div>
