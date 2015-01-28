@@ -53,9 +53,11 @@ def home():
         print "in session"
         msgs = q['messages']
         print msgs
+        user = ", " + session['user']
     else:
         msgs=[]
-    return render_template("home.html", logged = 'user' in session, msgs=msgs)
+        user = ""
+    return render_template("home.html", user=user, msgs=msgs)
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
@@ -603,7 +605,7 @@ def confirm():
                         usersInQSections.append(username)
                         print str(qSections)
                     else:
-                        qSections[scheduleSections[i]+", "+teachers[i]] = [username]
+                        qSections["section"+scheduleSections[i]+", "+teachers[i]] = [username]
                     print "updating with: " + str(qSections)
                     db.classes.update({'code':schedule[i]}, {'$set': {'sections': qSections}})
                     for x in db.classes.find({'code':schedule[i]}):

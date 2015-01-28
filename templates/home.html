@@ -31,11 +31,13 @@
 {% block bodycontent %}
 
 <div class="container jumbotron" style="border-radius:30px">
-  <center> <h1>Welcome to StuyApp, {{user}}!</h1>
+  <center> <h1>Welcome to StuyApp{{user}}!</h1>
+    {% if msgs %}
     Messages:
     {% for m in msgs %}
     <li>{{m}}</li>
     {% endfor %}
+    {% endif %}
     <img src="http://www.dirtmodeler.com/wp-content/uploads/2012/11/easy_button.png" alt="EZ">
     <br>
     <h10>Find us on <a href="https://github.com/abrarahmed56/StuyApp">Github</a></h10>
