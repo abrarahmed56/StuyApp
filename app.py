@@ -151,10 +151,10 @@ def schedule():
                 section = que[pdorsection]
                 teacher = pdorsection[pdorsection.find(",")+2:]
                 print "adding teacher:" + teacher
-                teachers.append(teacher)
                 print "people in section: " + str(section)
                 if username in section:
                     print "usr in period"
+                    teachers.append(teacher)
                     sections.append(pdorsection[:pdorsection.find(",")])
     print str(q)
     print "codes: " + str(schedule)
@@ -164,31 +164,98 @@ def schedule():
     print "periods: " + str(periods)
     for x in db.classes.find():
         print "class: " + str(x)
+    print str(db.users.find_one({'name':username}))
     return render_template("schedule2.html", L = schedule, D = schedule, T = teachers, titles=titles, T2=teachers, periods=periods, teachers=teachers, sections=sections, col1="Code", col2="Class", col3="Teacher", col4="Section", col5="Period", schedule=schedule)
 
-@app.route("/class/<code>")
+@app.route("/class/<code>", methods=["GET", "POST"])
 def classpage(code):
+    if request.method=="POST":
+        username = session['user']
+        thisSection = request.form.get("requested", None).replace("-", ",")
+        code = request.form.get("code", None)
+        print "classcode: " + code + "endcode"
+        print "class thissection:P " + thisSection
+        print "end section"
+        q = db.classes.find_one({'code':code+"\r"})
+        if 'title' in q:
+            title = q['title']
+        else:
+            title = ''
+        print "title" + title
+        print "q: "
+        print str(q)
+        print "AAAH"
+        qSections = q['sections']
+        print "qsections: "
+        print str(qSections).replace("\r","")
+        for s in qSections:
+            print "s:"
+            print s
+        print "thisSection: " + thisSection+"endsection"        
+        #users = qSections[thisSection]
+        print "hello"
+        print thisSection.replace("\n", "")
+        if thisSection.replace("\n","") in qSections:
+            print "users: "
+            users = qSections[thisSection.replace("\n","")]
+            print "done"
+            if title=='':
+                s = username + " would like your spot in " + thisSection + " in " + code
+            else:
+                s = username + " would like your spot in " + thisSection + " of " + title + " class"
+            print s
+            req(users, s)
+            flash("Request Submitted!")
+        else:
+            print "fail"
+        '''for doc in db.classes.find():
+            print doc
+            sections = doc['sections']
+            print "class sections: " + str(sections)
+            for section in sections:
+                print section
+                if section.replace==thisSection:
+                    print "correct doc? " + str(sections[section])
+                    users = sections[section]
+                    print "users; " + str(users)
+                    s = username + " would like your spot in " + thisSection + " of " + thisTeacher + "'s class"
+                    print s
+                    req(users, s)
+                    flash("Request Submitted!")
+                else:
+                    print "incorrect doc? " + str(section).replace("\r","\n")+"enddoc"
+                    print "thissection" + thisSection + "endsection"'''
     if 'user' not in session:
         flash("Please login first")
         return redirect(url_for("login"))
     code = code.replace("%20"," ")
-    q = db.classes.find_one({'title':code+"\r"})
+    q = db.classes.find_one({'code':code+"\r"})
+    print "here"
     if q == None:
-        return "Your search yielded no results"
+        q = db.classes.find_one({'title':code+"\r"})
+        code = q['code']
+        return redirect("/class/"+code.replace("\r", ""))
+        if q == None:
+            return "Your search yielded no results"
+    else:
+        if 'title' in q:
+            title = q['title']
+        else:
+            title = "N/A"
     #y = db.classes.find({'code':code[:-2]})
-    for x in db.classes.find():
-        print "x"
-        print x['code']
-    print "code: " + code
-    print "q: " + str(q)
+    #for x in db.classes.find():
+    #print "x"
+    #print x['code']
+    #print "code: " + code
+    #print "q: " + str(q)
     classList = q['sections']
     print "classList: " + str(classList)
     studentsInClass = {}
     for x in classList:
-        print "element in classlist: " + x
-        print "class[x]" + str(classList[x])
+        #print "element in classlist: " + x
+        #print "class[x]" + str(classList[x])
         studentsInClass[x]=classList[x]
-        print studentsInClass
+        #print studentsInClass
         if x[:2]!="pd":
             teacher = x[x.find(",")+2]
         else:
@@ -205,21 +272,23 @@ def classpage(code):
     #else:
     #    period = "Unknown"
     #teacher = x['teacher']
-
-    return render_template("class.html", code=code, similar = [], students = studentsInClass, teacher = teacher)
+    print "return here"
+    return render_template("class.html", code=code, similar = [], students = studentsInClass, teacher = teacher, title=title)
 
 def req(users, s):
     print "request submit"
+    username = session['user']
     for user in users:
-        print 'user: ' + user
-        q = db.users.find_one({'name':user})
-        if q == None:
-            print "none"
-        print "q: " + str(q)
-        messages = q['messages']
-        print "msgs: " + str(messages)
-        messages.append(s)
-        db.users.update({'name':user}, {'$set':{'messages':messages}}, multi=True)
+        if username != user:
+            print 'user: ' + user
+            q = db.users.find_one({'name':user})
+            if q == None:
+                print "none"
+            print "q: " + str(q)
+            messages = q['messages']
+            print "msgs: " + str(messages)
+            messages.append(s)
+            db.users.update({'name':user}, {'$set':{'messages':messages}}, multi=True)
         print str(db.users.find_one({'name':user}))
 
 @app.route("/teacher/<teacher>", methods=["GET", "POST"])
@@ -309,6 +378,8 @@ def teacherpage(teacher):
         #if 'period' in i:
         #periods[c['period']] = i        '''
     print "end for in teacher"
+    if codes==[]:
+        return "your search yielded no results"
     return render_template("teacher.html", classes=teachersClasses, teacher = thisTeacher.title(), codes=codes, L = list(set(classes)), D = periods)
 
 @app.route("/student/<username>")
@@ -348,10 +419,10 @@ def allowed_file(filename):
 def login():
     #db.users.update({}, {'$set':{'messages':[]}}, multi=True)
     #db.users.update({},{'$set':{'confirmed':0}}, multi=True)
-    for x in db.users.find():
+    for x in db.classes.find():
         #if x['messages']!=[]:
         #print 'YESYESYESYES'
-        print "user: " + str(x)
+        print "class: " + str(x)
     #db.classes.remove()
     #db.users.remove()
     #LOG IN

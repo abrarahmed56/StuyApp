@@ -30,25 +30,20 @@
     <div class="col-md-5">
       <div class="row">
 	<div class="col-md-3">Section</div>
-	<div class="col-md-2">Code</div>
 	<div class="col-md-4">Students</div>
       </div>
-      {% set i = 0 %}
       {% for class in classes %}
-      {% set i = i+1 %}
       <div class="row">
 	<div class="col-md-3">{{class}}</div>
-	<div class="col-md-2">{{class}}</div>	
 	<div class="col-md-4">
-	{% set users = "" %}
 	{% for student in classes[class] %}
 	<a href="/{{student}}">{{student}}</a>
 	<br>
 	{% endfor %}
+	</div>
 	<form method="POST">
 	<div class="col-md-3">
 	  <input type="hidden" name="requested" value={{class}}></input>
-	  <input type="hidden" name="index" value={{i}}</input>
 	  <input type="submit" value="Request Section"></submit>
 	</form>
 	</div>

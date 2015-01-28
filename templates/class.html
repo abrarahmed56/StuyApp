@@ -25,8 +25,8 @@
 {% endblock navbarr %}
 {% block bodycontent %}
 <div class="container jumbotron" style="border-radius:30px">
-  <h2> Class: {{code}} </h1>
-  <h3> Period: {{period}} </h2>
+  <h2> Class: {{title}} </h1>
+  <h3> Classcode: {{code}} </h2>
   <!--Similar Classes: <br>
   {% for i in similar %}
   <a href="/class/{{code[:-2]+i}}"> {{code[:-2]+i}} </a> <br>
@@ -41,6 +41,11 @@
       <li>{{j}}</li>
       {% endfor %}
     </ul>
+    <form method="POST">
+      <input type="hidden" name="requested" value="{{ i|replace(',', '-') }}"></input>
+      <input type="hidden" name="code" value={{code}}></input>
+      <input type="submit" value="Request Section"></submit>
+    </form>
     <!--<li><a href="/student/{{i}}">{{i}}</a></li>-->
     {% endfor %}
   </ul>
