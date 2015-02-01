@@ -68,6 +68,138 @@ def home():
         link2="Register"
     return render_template("home.html", user=user, msgs=msgs, url1=url1, url2=url2, link1=link1, link2=link2)
 
+@app.route("/test")
+def test():
+    #return '''<html>
+    '''<body>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '840810872652744',
+      xfbml      : true,
+      version    : 'v2.2'
+    });
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+<div
+  class="fb-like"
+  data-share="true"
+  data-width="450"
+  data-show-faces="true">
+</div>
+</body>
+</html>'''
+    return '''<!DOCTYPE html>
+<html>
+<head>
+<title>Facebook Login JavaScript Example</title>
+<meta charset="UTF-8">
+</head>
+<body>
+<script>
+  // This is called with the results from from FB.getLoginStatus().
+  function statusChangeCallback(response) {
+    console.log('statusChangeCallback');
+    console.log(response);
+    // The response object is returned with a status field that lets the
+    // app know the current login status of the person.
+    // Full docs on the response object can be found in the documentation
+    // for FB.getLoginStatus().
+    if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+      testAPI();
+    } else if (response.status === 'not_authorized') {
+      // The person is logged into Facebook, but not your app.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into this app.';
+    } else {
+      // The person is not logged into Facebook, so we're not sure if
+      // they are logged into this app or not.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into Facebook.';
+    }
+  }
+
+  // This function is called when someone finishes with the Login
+  // Button.  See the onlogin handler attached to it in the sample
+  // code below.
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
+  }
+
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '840810872652744',
+    cookie     : true,  // enable cookies to allow the server to access 
+                        // the session
+    xfbml      : true,  // parse social plugins on this page
+    version    : 'v2.1' // use version 2.1
+  });
+
+  // Now that we've initialized the JavaScript SDK, we call 
+  // FB.getLoginStatus().  This function gets the state of the
+  // person visiting this page and can return one of three states to
+  // the callback you provide.  They can be:
+  //
+  // 1. Logged into your app ('connected')
+  // 2. Logged into Facebook, but not your app ('not_authorized')
+  // 3. Not logged into Facebook and can't tell if they are logged into
+  //    your app or not.
+  //
+  // These three cases are handled in the callback function.
+
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+
+  };
+
+  // Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+  // Here we run a very simple test of the Graph API after login is
+  // successful.  See statusChangeCallback() for when this call is made.
+  function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function(response) {
+      console.log('Successful login for: ' + response.name);
+      document.getElementById('status').innerHTML =
+        'Thanks for logging in, ' + response.name + '!';
+    });
+  }
+</script>
+
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
+
+<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+</fb:login-button>
+
+<div id="status">
+</div>
+
+</body>
+</html>'''
+
 @app.route("/search", methods=["GET", "POST"])
 def search():
     select = request.args.get("select")
@@ -156,16 +288,16 @@ def schedule():
     #print range(len(schedule))
     print str(schedule)
     for i in range(len(schedule)):
-        print 'i in schedule: ' + str(i)
+        #print 'i in schedule: ' + str(i)
         qu = db.classes.find_one({'code':schedule[i]})
-        print "code: " + schedule[i]
-        print "q: " + str(qu)
+        #print "code: " + schedule[i]
+        #print "q: " + str(qu)
         if 'title' in qu:
             title = qu['title']
             #print 'title in qu: ' + title
             titles.append(title)
         else:
-            print "title not appended"
+            #print "title not appended"
             titles.append("")
         '''if 'teacher' in qu:
             teacher = qu['teacher']
@@ -183,7 +315,7 @@ def schedule():
             else:
                 section = que[pdorsection]
                 teacher = pdorsection[pdorsection.find(",")+2:]
-                print "adding teacher:" + teacher
+                #print "adding teacher:" + teacher
                 #print "people in section: " + str(section)
                 if username in section:
                     #print "usr in period"
@@ -198,6 +330,148 @@ def schedule():
     #for x in db.classes.find():
     #print "class: " + str(x)
     #print str(db.users.find_one({'name':username}))
+    if len(sections)>0 and len(periods)>0:
+        print "match sections and periods here"
+        print "sections: " + str(sections)
+        print "periods: " + str(periods)
+        if len(sections)==len(periods):
+            for i in range(len(schedule)):
+                db.classes.update({'code':schedule[i]}, {'$set': {sections[i]+", " + teachers[i]:periods[i], periods[i]:sections[i]+", "+teachers[i]}})
+                print "matches in document: " + str(db.classes.find_one({'code':schedule[i]}))
+                print "code: " + schedule[i]
+                print "section: " + sections[i]
+                print "period: " + periods[i]
+    else:
+        if len(periods)>0:
+            print "periods"
+            for i in range(len(periods)):
+                code = schedule[i]
+                period = periods[i]
+                print "code: " + code
+                print "period: " + period
+                q = db.classes.find_one({'code':code})
+                print "q: " + str(q)
+                if period in q:
+                    print "period is in code: " + period
+                    section = q[period]
+                    print "section: " + str(section)
+        elif len(sections)>0:
+            print "sections"
+            for i in range(len(sections)):
+                print "i: " + str(i)
+                code = schedule[i]
+                section = sections[i]
+                #print "code: " + code
+                #print "section: " + section
+                q = db.classes.find_one({'code':code})
+                print "q: " + str(q)
+                if section in code:
+                    print "section is in code"
+                    period = q[section]
+                    print "period: " + period
+    if len(periods)>0:
+        newPeriods = []
+        for x in periods:
+            newPeriods.append(int(x))
+        #newPeriods.sort()#[0,0,0,0,0,0,0,0,0,0]
+        periodsDict={}
+        for x in periods:
+            periodsDict[periods.index(x)]=newPeriods.index(int(x))
+        print "pddict: " + str(periodsDict)
+        print "periods: " + str(periods)
+        print "teachers: " + str(teachers)
+        print "codes: " + str(schedule)
+        newTeachers = ['', '', '', '', '', '', '', '', '', '']
+        newSchedule = ['', '', '', '', '', '', '', '', '', '']
+        newSections = ['', '', '', '', '', '', '', '', '', '']
+        newTitles = ['', '', '', '', '', '', '', '', '', '']
+        for x in periodsDict:
+            #print "pddict for loop: " + str(x)
+            y = periodsDict[x]
+            print str(x) + " becomes " + str(y)
+            #print y
+            newSchedule.pop(y)
+            newSchedule.insert(y, schedule[x])
+            #code = schedule[y]
+            print "code: " + newSchedule[y]
+            print "codes: " + str(newSchedule)
+            newTeachers.pop(y)
+            newTeachers.insert(y, teachers[x])
+            #teacher = teachers[y]
+            print "teacher: " + newTeachers[y]
+            print "teachers: " + str(newTeachers)
+            newTitles.pop(y)
+            newTitles.insert(y, titles[x])
+            #title = titles[y]
+            print "title: " + newTitles[y]
+            #newsection = sections.pop(x)
+            newSections.pop(y)
+            newSections.insert(y, sections[x])
+            #section = sections[y]
+            print "section: " + newSections[y]
+        print "newPeriods: " + str(newPeriods)
+        newPeriods.sort()
+        periods = newPeriods
+        print "newSections: " + str(newSections)
+        sections = newSections
+        print "newTitles: " + str(newTitles)
+        titles = newTitles
+        print "newTeachers: " + str(newTeachers)
+        teachers = newTeachers
+        print "newCodes: " + str(newSchedule)
+        schedule = newSchedule
+        #for i in range(len(periods)):
+        #print "for loop: " + str(i)
+        #print "period: " + periods[i]
+        #    newPeriods.insert(int(periods[i]),periods[i])
+        print "newPeriods: " + str(newPeriods)
+        #print "periods in schedule" + str(periods)
+        i = 1
+        #frees = []
+        while i <= 10:
+            #print "while i " + str(i)
+            if i not in periods:
+                #print "i not there " + str(i)
+                #frees.append(i)
+                if schedule[i][0].upper()=="Z":
+                    print "LUNCH"
+                else:
+                    print "not lunch: " + schedule[i]
+                    print "index: " + str(i)
+                schedule.insert(i-1, "None")
+                titles.insert(i-1, "Free")
+                periods.insert(i-1, i)
+                q = db.classes.find_one({'code':'FREE'})
+                #print "q free: " + str(q)
+                if q == None:
+                    #print "none"
+                    db.classes.insert({'code':'FREE', 'sections':{}})
+                db.classes.remove({'code':'FREE'})
+                db.classes.insert({'code':'FREE', 'sections':{}})
+                #print "ok till now"
+                q = db.classes.find_one({'code':'FREE'})
+                #print "q free: " + str(q)
+                fsections = q['sections']
+                #print "sections: " + str(fsections)
+                if str(i) not in fsections:
+                    #print str(i) + " isnt in q"
+                    #print "usr: " + str(fsections[str(i)])
+                    fsections[str(i)]=[username]
+                    #print "ok"
+                    #print "usr: " + username
+                    db.classes.update({'code':'FREE'}, {'$set': {'sections': fsections}})
+                    #print "free document: " + str(db.classes.find_one({'code':'FREE'}))
+                else:
+                    fsections = q['sections']
+                    students = fsections[str(i)]
+                    students.append(username)
+                    fsections[str(i)]=students
+                    db.classes.update({'code':'FREE'} , {'$set': { 'sections': fsections }})
+                #print "q: " + str(q)
+                #else:
+                #students = q[str(i))
+                #db.classes.update({'code':'free'}, {'$set': 
+            i = i + 1
     i = len(sections)-1
     while i >= 0:
         #for i in range(len(sections)):
@@ -208,43 +482,6 @@ def schedule():
         #print sections[i]
         #schedule[i] = schedule.pop(i)[:-2]'''
         i = i - 1
-    if len(periods)>0:
-        print "periods in schedule" + str(periods)
-        i = 1
-        #frees = []
-        while i <= 10:
-            #print "while i " + str(i)
-            if str(i) not in periods:
-                #print "i not there " + str(i)
-                #frees.append(i)
-                schedule.insert(i-1, "None")
-                titles.insert(i-1, "Free")
-                periods.insert(i-1, i)
-                q = db.classes.find_one({'code':'FREE'})
-                #print "q free: " + str(q)
-                if q == None:
-                    #print "none"
-                    db.classes.insert({'code':'FREE', 'sections':{}})
-                print "ok till now"
-                q = db.classes.find_one({'code':'FREE'})
-                sections = q['sections']
-                print "sections: " + str(sections)
-                if str(i) not in sections:
-                    #print str(i) + " isnt in q"
-                    sections[str(i)]=[username]
-                    #print "usr: " + username
-                    db.classes.update({'code':'FREE'}, {'$set': {'sections': sections}})
-                else:
-                    sections = q['sections']
-                    students = sections[str(i)]
-                    students.append(username)
-                    sections[str(i)]=students
-                    db.classes.update({'code':'FREE'} , {'$set': { 'sections': sections }})
-                #print "q: " + str(q)
-                #else:
-                #students = q[str(i))
-                #db.classes.update({'code':'free'}, {'$set': 
-            i = i + 1
     return render_template("schedule2.html", L = schedule, D = schedule, T = teachers, titles=titles, T2=teachers, periods=periods, teachers=teachers, sections=sections, col1="Code", col2="Class", col3="Teacher", col4="Section", col5="Period", schedule=schedule)
 
 @app.route("/class/<code>", methods=["GET", "POST"])
@@ -685,7 +922,7 @@ def confirm():
                     #update classes to include user in q['pd'][pd#]
                     #print "q exists, pd"
                     qPeriods = q['sections']
-                    title = titles[i]
+                    title = "".join(titles[i].strip())
                     #print "qPeriods: " + str(qPeriods)
                     #print str(periods[i])
                     period = "pd" + "".join(periods[i].strip())
@@ -694,7 +931,7 @@ def confirm():
                         usersInQPeriods.append(username)
                     else:
                         qPeriods[period] = [username]
-                    db.classes.update({'code':code}, {'$set': {'sections': qPeriods, 'title': titles[i]}})
+                    db.classes.update({'code':code}, {'$set': {'sections': qPeriods, 'title': title}})
                 elif f == "class":
                     #print "sections: " + str(q['sections'])
                     qSections = q['sections']
